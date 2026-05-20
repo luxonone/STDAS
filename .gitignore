@@ -6,4 +6,6 @@ dist/
 .env
 *.tsbuildinfo
 docs/verification/*.png
-
+AGENTS.md
+.swarm/
+reference-project/

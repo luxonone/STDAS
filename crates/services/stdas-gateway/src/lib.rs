@@ -92,4 +92,26 @@ mod tests {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn preflight_endpoint_returns_contract_data() -> Result<(), Box<dyn std::error::Error>> {
+        let request = Request::builder()
+            .uri("/api/v1/system/preflight")
+            .body(Body::empty())?;
+
+        let response = app().oneshot(request).await?;
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let body = response.into_body().collect().await?.to_bytes();
+        let payload: Value = serde_json::from_slice(&body)?;
+
+        assert_eq!(payload["code"], 0);
+        assert_eq!(payload["message"], "success");
+        assert_eq!(payload["data"]["gateway"], "stdas-gateway");
+        assert_eq!(payload["data"]["api_prefix"], "/api/v1");
+        assert_eq!(payload["data"]["purpose"], "phase-0-minimal-verification");
+
+        Ok(())
+    }
 }

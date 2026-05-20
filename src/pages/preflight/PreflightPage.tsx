@@ -12,26 +12,36 @@ const checks = [
   { label: "Scope", value: "Phase 0 verification only" }
 ] as const;
 
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unable to reach gateway";
+}
+
 export function PreflightPage() {
   const [state, setState] = useState<LoadState>({ kind: "loading" });
 
   const loadHealth = useCallback(async (signal?: AbortSignal) => {
+    if (signal?.aborted) {
+      return;
+    }
+
     setState({ kind: "loading" });
 
     try {
       const health = await readSystemHealth(fetch, signal);
       setState({ kind: "ready", health });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Unable to reach gateway";
-      setState({ kind: "error", message });
+      if (signal?.aborted) {
+        return;
+      }
+
+      setState({ kind: "error", message: getErrorMessage(error) });
     }
   }, []);
 
   useEffect(() => {
     const controller = new AbortController();
 
-    readSystemHealth(fetch, controller.signal)
+    void readSystemHealth(fetch, controller.signal)
       .then((health) => {
         setState({ kind: "ready", health });
       })
@@ -40,9 +50,7 @@ export function PreflightPage() {
           return;
         }
 
-        const message =
-          error instanceof Error ? error.message : "Unable to reach gateway";
-        setState({ kind: "error", message });
+        setState({ kind: "error", message: getErrorMessage(error) });
       });
 
     return () => controller.abort();
