@@ -1,0 +1,73 @@
+# 产品愿景
+
+STDAS 是面向本工厂内部测试部门的半导体测试数据工程分析工作台和数据平台。第一版聚焦 FT 测试系统：FT 面向成品芯片形态，BI、SLT 等在内部归入 FT 测试部门范围；CP 晶圆测试系统暂不开发。
+
+STDAS 需要在服务多个芯片客户时，统一接收、解析、规范化、分析和追溯测试数据，同时用内部解析规则、规则版本、模板和受控扩展承载客户/产品差异。DataProfile、DataVersion 等是系统内部治理和追溯概念，不是普通工程用户日常页面需要选择或理解的对象。
+
+## STDAS 是什么
+
+STDAS 第一版是内部工程师和管理员使用的高密度数据工作台，不是展示型官网、通用 BI、MES 替代品或设备控制系统。
+
+它的核心价值是：
+
+- 多客户测试数据可隔离、可追溯、可审计。
+- LotNo、客户 LotNo、测试类型、测试站点、测试次数、Run、File、LotEndTime、内部数据版本和规则版本关系清楚。
+- 多 Lot 分析结果可复现，历史 workspace、case、export 不因 latest committed 变化而静默改变。
+- 前端、后端、数据、权限和验收按功能切片同步交付。
+
+## 第一版核心用户
+
+| 用户 | 核心诉求 |
+|------|----------|
+| 测试工程师 | 查看授权客户范围内的 LotNo、测试类型、测试站点、测试次数、Run、File 和 LotEndTime，执行多 Lot 分析、导出、告警追溯和 Investigation Case 沉淀 |
+| 管理员 | 管理用户、客户、权限、DataProfile、规则、模板、摄入任务、审计和系统配置 |
+
+后续如果出现质量用户、管理层用户、只读用户或外部客户用户，优先扩展权限点和 scope，再评估是否新增角色。
+
+## 第一版核心任务
+
+- 使用工厂内部账号密码登录；角色和权限由账号配置，不在前端页面让用户选择。
+- 查看 FT Overview KPI、近期趋势、open alerts、风险 LotNo 和最近成功快照。
+- 在 Data Explorer 中按客户、产品、测试类型、测试站点、LotEndTime 查看 LotNo、Run、File 和 lineage。
+- 选择一个或多个 Lot 进入 Analysis Workspace。
+- 执行良率、Bin、Retest、参数趋势、分布、异常点和跨批次对比分析。
+- 将分析结果保存为 workspace、export 或 Investigation Evidence。
+- 从告警进入调查上下文，保留 rule version、trigger context 和 QuerySnapshot。
+- 治理 DataProfile、parser/mapping/spec rule、alert rule 和 analysis template。
+
+## 明确不做
+
+STDAS 第一版明确不承担以下职责：
+
+- 不替代 MES，不负责生产派工、WIP 主流程或制造执行闭环。
+- 不做设备控制，不直接控制 tester、handler、burn-in 设备。
+- 不做 ERP、WMS、排程或完整企业运营系统。
+- 不做无限通用 BI，不允许绕过 CustomerScope、DataVersion 和 QuerySnapshot 任意拼接数据。
+- 不做 CP 晶圆测试系统；FT 页面默认不以 Wafer 为主维度，只有在客户数据实际提供 WaferLot/WaferNo/X/Y 且具体分析需要时才使用。
+- 不为每个客户复制独立服务、独立代码分支或独立系统。
+- 不允许前端直连内部服务或数据库。
+- 不允许 parser 直接写核心业务表或 analytics 表。
+
+## 用户关注点
+
+STDAS 的产品设计优先围绕工程分析关注点，而不是围绕组织岗位硬编码。一个工程师可能同时关注 Lot 详情、参数能力、告警追溯和 Dashboard；系统不应过早把这些能力绑定到复杂角色体系。
+
+| 关注点 | 典型问题 |
+|------|----------|
+| Lot 详情 | 这个 LotNo 在某个测试类型-测试站点下发生了什么，测试次数、文件组合、设备、Summary、Bin 是否正常 |
+| 良率趋势 | 良率是否偏移，哪些产品、测试类型、测试站点、设备受影响 |
+| Bin 分布 | 主要失效 Bin 是什么，是否集中在特定设备、site 或位置 |
+| 参数能力 | 参数分布、规格限、异常点、过程能力、趋势和后续扩展分析是否可接受 |
+| 重测收益 | 重测是否改善良率，哪些 Bin 有回收价值 |
+| 告警追溯 | 告警为什么触发，关联哪些批次、参数和历史模式 |
+| 模板复用 | 常用分析路径如何沉淀为模板，减少重复操作 |
+| 系统治理 | 用户、客户、权限、采集任务、规则、保留策略是否受控 |
+
+## 成功标准
+
+- 授权范围内的 LotNo、客户 LotNo、测试类型、测试站点、测试次数、Run、File、LotEndTime、内部数据版本和解析规则可追溯。
+- 多客户数据隔离不依赖前端隐藏或人工约定。
+- 多 Lot 分析结果可通过 QuerySnapshot 复现。
+- Investigation Evidence 不被静默重算覆盖。
+- 大查询、导出和长流程任务可诊断、可重试、可审计。
+- 前端 P0 UI/UX 约束、后端 API 契约和权限策略能在首批功能切片中同时验收。

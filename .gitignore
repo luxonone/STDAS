@@ -1,0 +1,9 @@
+target/
+node_modules/
+dist/
+.vite/
+*.log
+.env
+*.tsbuildinfo
+docs/verification/*.png
+

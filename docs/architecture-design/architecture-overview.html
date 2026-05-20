@@ -1,0 +1,174 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>STDAS 架构设计介绍</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #15233f;
+      --muted: #5d6880;
+      --line: #d8e0ee;
+      --blue: #1f5fbf;
+      --green: #33834a;
+      --orange: #a86a16;
+      --purple: #74439a;
+      --bg: #f6f8fb;
+      --panel: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    header {
+      padding: 40px 56px 28px;
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 32px;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      max-width: 980px;
+    }
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 32px 28px 56px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 22px;
+    }
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 17px;
+    }
+    .diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+    .links {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    a.button {
+      display: inline-block;
+      padding: 9px 13px;
+      border: 1px solid #b8c7dd;
+      border-radius: 6px;
+      color: var(--blue);
+      text-decoration: none;
+      background: #f9fbff;
+      font-weight: 600;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+    .item strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+    ul {
+      margin: 8px 0 0 20px;
+      padding: 0;
+    }
+    code {
+      padding: 1px 5px;
+      border-radius: 4px;
+      background: #eef2f8;
+      font-family: Consolas, monospace;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>STDAS Rust 原生分布式微服务数据平台</h1>
+    <p class="subtitle">
+      本页描述架构图中的核心思想：STDAS 面向 OSAT 多客户测试数据场景，采用粗粒度微服务、DataProfile 规则治理、事件驱动流水线和可扩展分析框架。
+    </p>
+  </header>
+  <main>
+    <section>
+      <h2>架构图</h2>
+      <img class="diagram" src="architecture-diagram.png" alt="STDAS architecture diagram">
+      <div class="links">
+        <a class="button" href="architecture-diagram.png">查看 PNG 架构图</a>
+        <a class="button" href="architecture-diagram.drawio">编辑 draw.io 架构图</a>
+        <a class="button" href="system-architecture.md">查看系统架构文档</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>服务边界</h2>
+      <div class="grid">
+        <div class="item"><strong><code>stdas-gateway</code></strong>外部 HTTPS API、BFF、认证上下文、请求聚合和限流。</div>
+        <div class="item"><strong><code>identity-service</code></strong>用户、角色、token、会话、权限和 CustomerScope。</div>
+        <div class="item"><strong><code>customer-service</code></strong>客户专属服务，管理 CustomerConfig、DataProfile、规则绑定、规则分叉、FeatureFlag 和客户扩展。</div>
+        <div class="item"><strong><code>data-pipeline-service</code></strong>摄入、解析、归一化、canonical TestData、DataVersion 和 lineage。</div>
+        <div class="item"><strong><code>analytics-service</code></strong>分析执行框架、算法 registry、聚合、OLAP adapter、告警、工作台和导出。</div>
+        <div class="item"><strong><code>workflow-service</code></strong>Saga、Process Manager、作业状态、重试、补偿和 Dead Letter。</div>
+        <div class="item"><strong><code>integration-service</code></strong>MES、客户接口、外部文件交换和设备数据同步。</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>DataProfile 与规则治理</h2>
+      <p>
+        <code>DataProfile</code> 不是一个客户一个 Profile，而是某类测试数据在特定上下文下的规则集合，通常由
+        <code>customer_code</code>、<code>site_type</code>、<code>equipment_type</code>、<code>file_format</code>、<code>program_name</code>、
+        <code>program_version</code> 和 <code>effective_time</code> 定位。
+      </p>
+      <ul>
+        <li>多个 DataProfile 可以共享同一个 ParserRule、MappingRule 或 SpecRule。</li>
+        <li>需要隔离变更时，可以从共享规则复制分叉出独立规则。</li>
+        <li>OSAT 厂内通用数据类型也通过 DataProfile 分类，但可复用相同规则。</li>
+        <li>所有规则绑定、复制分叉和版本冻结都必须可追溯。</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>为未来能力留空间</h2>
+      <p>
+        总体架构不穷举所有分析方法、报表类型、接入类型或客户专属需求。后续前端和后端设计可以围绕统一上下文、registry、contract、DataVersion 和扩展隔离机制继续发散。
+      </p>
+      <h3>分析服务边界</h3>
+      <p>
+        <code>analytics-service</code> 承诺的是分析执行框架，而不是固定算法清单。未来可以新增工程统计、异常检测、设备对比、客户指定指标、报表型分析或模型类能力。
+      </p>
+      <h3>客户专属能力隔离</h3>
+      <p>
+        客户强行要求加入且可能与主架构冲突的能力，必须登记为 CustomerExtension，通过 DataProfile 或 FeatureFlag 启用，并在 adapter 或 sandbox 中隔离执行。
+      </p>
+    </section>
+  </main>
+</body>
+</html>
