@@ -1,46 +1,41 @@
 # STDAS Phase 0 Preflight
 
-This repository currently contains a minimal verification slice for the STDAS
-technical baseline. It is preparation work only: no semiconductor test data
-business workflow, domain model, ingestion, cache, authentication, or formal
-feature behavior is implemented here.
+当前仓库只包含 STDAS 技术基线的最小验证切片。该切片仅用于前置验证，尚未实现半导体测试数据业务工作流、Domain Model、ingestion、cache、authentication 或正式功能行为。
 
-## Stack
+## 技术栈
 
-- Backend: Rust workspace with `stdas-gateway` using Axum and Tokio.
-- Frontend: Vite, React, TypeScript, pnpm.
-- API prefix: `/api/v1`.
-- Health endpoint: `GET /api/v1/system/health`.
+- Backend：Rust workspace，`stdas-gateway` 使用 Axum 和 Tokio。
+- Frontend：Vite、React、TypeScript、pnpm。
+- API prefix：`/api/v1`。
+- Health endpoint：`GET /api/v1/system/health`。
 
-## Project History
+## 项目历史
 
-See [CHANGELOG.md](CHANGELOG.md) for project-visible changes and the local
-commit numbering convention used to keep code/configuration commits separate
-from documentation-only commits.
+项目可见变更和本地 commit 编号约定见 [CHANGELOG.md](CHANGELOG.md)。该约定用于区分 code/configuration commit 与 documentation-only commit，避免回档时混淆代码和文档。
 
-## Run
+## 运行
 
-Install frontend dependencies:
+安装 Frontend dependencies：
 
 ```bash
 pnpm install
 ```
 
-Run the gateway:
+运行 Gateway：
 
 ```bash
 cargo run -p stdas-gateway
 ```
 
-Run the frontend:
+运行 Frontend：
 
 ```bash
 pnpm dev
 ```
 
-Open `http://127.0.0.1:5173`.
+打开 `http://127.0.0.1:5173`。
 
-## Verify
+## 验证
 
 ```bash
 cargo fmt --check
