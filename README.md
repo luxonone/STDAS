@@ -12,6 +12,12 @@ feature behavior is implemented here.
 - API prefix: `/api/v1`.
 - Health endpoint: `GET /api/v1/system/health`.
 
+## Project History
+
+See [CHANGELOG.md](CHANGELOG.md) for project-visible changes and the local
+commit numbering convention used to keep code/configuration commits separate
+from documentation-only commits.
+
 ## Run
 
 Install frontend dependencies:
@@ -46,4 +52,3 @@ pnpm typecheck
 pnpm test
 pnpm build
 ```
-
