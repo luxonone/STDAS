@@ -121,10 +121,10 @@ export function PreflightPage() {
             </p>
             <p className="panel__copy">
               {state.kind === "ready"
-                ? `${state.health.service} reported ${state.health.status}.`
+                  ? `${state.health.service} reported ${state.health.status}.`
                 : state.kind === "error"
                   ? state.message
-                  : "Waiting for the Axum gateway health response."}
+                  : "Waiting for the Loco gateway health response."}
             </p>
             <div className="status-line">
               <span
@@ -145,13 +145,13 @@ export function PreflightPage() {
             <p className="panel__value">React + Vite</p>
             <p className="panel__copy">
               The page is structured as an analytical workbench shell with
-              shared API access kept under src/shared/api.
+              shared API access kept under apps/web/src/shared/api.
             </p>
           </article>
 
           <article className="panel">
             <p className="panel__label">Backend runtime</p>
-            <p className="panel__value">Rust + Axum</p>
+            <p className="panel__value">Rust + Loco</p>
             <p className="panel__copy">
               The gateway exposes a stable response envelope under the
               documented /api/v1 prefix.

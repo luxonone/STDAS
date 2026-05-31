@@ -5,6 +5,7 @@ dist/
 *.log
 .env
 *.tsbuildinfo
+tmp/
 docs/verification/*.png
 AGENTS.md
 .swarm/

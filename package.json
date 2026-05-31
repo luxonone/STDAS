@@ -1,32 +1,24 @@
 {
-  "name": "stdas-preflight",
+  "name": "stdas",
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@10.26.0",
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "tsc -b && vite build",
-    "typecheck": "tsc -b --pretty false",
-    "lint": "eslint src vite.config.ts --max-warnings=0",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.2",
-    "@types/node": "^25.0.0",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^5.1.1",
-    "eslint": "^9.39.2",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.50.0",
-    "vite": "^7.2.7",
-    "vitest": "^4.0.15"
+    "dev": "pnpm --dir apps/web dev",
+    "build": "pnpm --dir apps/web build",
+    "typecheck": "pnpm --dir apps/web typecheck",
+    "lint": "pnpm --dir apps/web lint",
+    "test": "pnpm --dir apps/web test",
+    "web:dev": "pnpm --dir apps/web dev",
+    "web:build": "pnpm --dir apps/web build",
+    "web:typecheck": "pnpm --dir apps/web typecheck",
+    "web:lint": "pnpm --dir apps/web lint",
+    "web:test": "pnpm --dir apps/web test",
+    "gateway:start": "cargo loco start",
+    "gateway:routes": "cargo loco routes"
   }
 }
