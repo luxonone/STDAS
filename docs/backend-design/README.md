@@ -2,7 +2,7 @@
 
 本目录保存 STDAS Rust 后端设计。后端设计会随实现、性能验证、数据规模和部署方式持续调整，因此允许高频迭代。
 
-当前 Phase 0 / 0.5 本机环境基线记录在 [phase-0-5-environment-validation.md](phase-0-5-environment-validation.md)：Windows + Scoop 原生工具链，Redis 已安装并可按缓存策略启用；Windows 本地开发不安装、不使用 Docker。
+当前 Phase 0 / 0.5 本机环境基线记录在 [phase-0-5-environment-validation.md](phase-0-5-environment-validation.md)：Windows + Scoop 原生工具链，`stdas-gateway` HTTP 应用层采用 Loco（基于 Axum），Redis 已安装并可按缓存策略启用；Windows 本地开发不安装、不使用 Docker。
 
 ## 文档
 

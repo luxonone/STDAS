@@ -59,7 +59,7 @@ STDAS 前端参考以下系统形态：
 推荐结构：
 
 ```text
-src/
+apps/web/src/
 ├── app/
 │   ├── routes/
 │   ├── providers/

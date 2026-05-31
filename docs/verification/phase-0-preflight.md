@@ -6,10 +6,10 @@ development starts.
 ## Scope
 
 - Rust workspace root with `crates/services/stdas-gateway`.
-- Axum gateway health endpoint at `GET /api/v1/system/health`.
+- Loco-based gateway health endpoint at `GET /api/v1/system/health`.
 - Standard API success envelope with `code`, `message`, and `data`.
 - Vite React TypeScript frontend at the repository root.
-- Frontend API access isolated under `src/shared/api`.
+- Frontend API access isolated under `apps/web/src/shared/api`.
 - A preflight workbench page that verifies the frontend can reach the gateway.
 
 ## Out of Scope
@@ -31,3 +31,9 @@ pnpm test
 pnpm build
 ```
 
+当前仓库根目录已配置 Cargo alias。Gateway 启动和路由检查命令为：
+
+```bash
+cargo loco start
+cargo loco routes
+```

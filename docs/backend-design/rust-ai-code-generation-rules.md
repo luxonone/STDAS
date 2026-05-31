@@ -12,7 +12,7 @@
 - Rust API Guidelines：命名、类型转换、错误、trait、可预期性和未来兼容。
 - rustfmt 和 Clippy：格式、lint 和常见错误模式。
 - Tokio：异步 runtime、任务、同步原语、取消和背压。
-- axum：extractor、handler、middleware、response 和错误映射。
+- Loco：app hooks、controller、routes、配置、CLI 和测试组织；Gateway HTTP 仍可使用 Axum extractor、handler、middleware、response 和错误映射。
 - SQLx：类型化 SQL、连接池、事务、迁移和查询边界。
 - thiserror：稳定、可组合的错误枚举。
 - tracing：结构化 span、字段和跨服务排障。
@@ -26,7 +26,7 @@
 - **错误模型**：错误是否属于领域错误、基础设施错误、权限错误、契约错误或内部错误；是否能映射到 STDAS API error code。
 - **异步边界**：哪些操作会 `.await`，是否持有锁、事务、借用或大对象跨 `.await`，是否需要取消、超时或背压。
 - **分层边界**：handler 是否只做协议适配；service/usecase 是否持有业务流程和事务；repository 是否只做数据访问。
-- **参考项目校准**：当前问题是否可从 Tokio、axum、SQLx、Meilisearch、Qdrant 等参考来源抽取模式；哪些模式不能照搬。
+- **参考项目校准**：当前问题是否可从 Loco、Tokio、axum、SQLx、Meilisearch、Qdrant 等参考来源抽取模式；哪些模式不能照搬。
 - **数据契约**：DTO、domain model、repository row model 是否分离；枚举、ID、状态、时间和单位是否有明确类型。
 - **可观测性**：是否需要 `tracing` span 和字段，是否带 request/query/customer/job/test/data_version 等上下文。
 - **测试策略**：单元测试、集成测试、契约测试或错误路径测试是否覆盖该变更风险。
@@ -35,7 +35,7 @@
 
 ## 推荐模式
 
-- handler 接收 extractor、校验协议层输入、调用 command/query service、返回统一响应，不直接写 SQL 或承载业务流程。
+- Loco controller handler 接收 extractor、校验协议层输入、调用 command/query service、返回统一响应，不直接写 SQL 或承载业务流程。
 - service/usecase 组织事务、幂等、权限、缓存、事件和领域规则。
 - repository 只封装存储访问，返回明确 row/model/result，不泄漏 HTTP 或 UI 概念。
 - 使用 `thiserror` 定义稳定错误枚举，通过项目错误映射转换为 API response。
@@ -54,7 +54,7 @@
 - 使用 `Arc<Mutex<_>>` 或 `RwLock` 处理普通业务共享状态，尤其是跨 `.await` 持锁。
 - 在生产路径使用 `unwrap`、`expect`、`panic` 或丢弃错误上下文。
 - 使用 `Box<dyn Error>`、`anyhow::Error`、`String` error 贯穿领域/API 边界。
-- 在 axum handler 中混合解析、权限、SQL、业务、缓存、事件和响应拼装。
+- 在 Loco/Axum handler 中混合解析、权限、SQL、业务、缓存、事件和响应拼装。
 - 用 `serde_json::Value`、`HashMap<String, Value>` 或字符串枚举替代明确 domain type。
 - 为少量重复引入 trait/generic/macro，导致用户难以审查。
 - 在 Tokio runtime 中执行阻塞 I/O、CPU 密集任务或无界并发。

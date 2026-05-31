@@ -16,7 +16,7 @@
 AI 生成代码或提出方案时，依据优先级从高到低为：
 
 1. STDAS 项目文档、现有源码、API 契约、功能切片和 ADR。
-2. 官方或一手技术文档，例如 Rust Book、Rust API Guidelines、rustfmt、Clippy、Tokio、axum、SQLx、thiserror、tracing、React、TypeScript、Vite。
+2. 官方或一手技术文档，例如 Rust Book、Rust API Guidelines、rustfmt、Clippy、Tokio、Loco、axum、SQLx、thiserror、tracing、React、TypeScript、Vite。
 3. 成熟开源 Rust 项目和官方示例的工程组织方式，例如 tokio-rs、Meilisearch、Qdrant；具体抽取方式见 [Rust 高质量项目参考与模式](../backend-design/rust-reference-projects-and-patterns.md)。它们只能作为参考，不得直接覆盖 STDAS 架构边界。
 4. 本地验证结果，包括 `cargo check`、`cargo fmt`、`cargo clippy`、`cargo test`、`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`。
 
@@ -39,11 +39,12 @@ AI 生成代码或提出方案时，依据优先级从高到低为：
 
 1. **定位事实源**：读取 `docs/README.md`、[AI Agent 运行规则](ai-agent-runtime-rules.md)、相关 section README 和任务相关 topic 文档。
 2. **识别偏航点**：判断用户要求是否会造成所有权设计混乱、错误类型不稳定、异步边界不清、API 契约漂移、状态重复、组件职责过大、依赖膨胀、测试缺失或安全/权限风险。
-3. **先提醒再编码**：如果存在偏航风险，编码前必须说明风险、对应项目规则、推荐替代方案和取舍。
-4. **采用最佳路径**：如果用户接受建议，按项目规则和语言/框架最佳实践实现。
-5. **受限执行用户路径**：如果用户仍要求原路径，只有在不破坏安全、权限、数据正确性、API 兼容性和可验证性的前提下才能实现。
-6. **标记待优化项**：对已经明确偏离最佳实践但暂时被接受的代码，必须添加 `TODO(AI-OPTIMIZE, ...)` 标记，并在最终回复中列出。
-7. **验证和汇报**：执行与变更风险匹配的检查；若是文档阶段或环境缺失导致未执行代码验证，必须说明原因。
+3. **专业判断优先**：当用户说明自己不熟悉 Rust、前端或后端，或提出的路径看起来像猜测时，AI 必须把该请求作为待验证假设，不能为了迎合而执行可能破坏项目结构、锁文件、数据或构建可复现性的操作。
+4. **先提醒再编码**：如果存在偏航风险，编码前必须说明风险、对应项目规则、推荐替代方案和取舍。
+5. **采用最佳路径**：如果用户接受建议，按项目规则和语言/框架最佳实践实现。
+6. **受限执行用户路径**：如果用户仍要求原路径，只有在不破坏安全、权限、数据正确性、API 兼容性和可验证性的前提下才能实现。
+7. **标记待优化项**：对已经明确偏离最佳实践但暂时被接受的代码，必须添加 `TODO(AI-OPTIMIZE, ...)` 标记，并在最终回复中列出。
+8. **验证和汇报**：执行与变更风险匹配的检查；若是文档阶段或环境缺失导致未执行代码验证，必须说明原因。
 
 如果用户要求会直接破坏安全、权限隔离、数据正确性、审计要求或可恢复性，AI 不得用 `TODO(AI-OPTIMIZE, ...)` 掩盖问题，必须要求改方案或缩小范围。
 

@@ -101,7 +101,7 @@ Analysis Workspace 是分析能力的核心容器。良率趋势、Bin 分布、
 ## 前端分层
 
 ```text
-src/
+apps/web/src/
 ├── app/
 │   ├── routes/
 │   ├── providers/

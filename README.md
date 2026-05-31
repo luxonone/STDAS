@@ -4,10 +4,28 @@
 
 ## 技术栈
 
-- Backend：Rust workspace，`stdas-gateway` 使用 Axum 和 Tokio。
-- Frontend：Vite、React、TypeScript、pnpm。
+- Backend：Rust workspace，`stdas-gateway` 使用 Loco（基于 Axum）和 Tokio。
+- Frontend：`apps/web`，Vite、React、TypeScript、pnpm workspace。
 - API prefix：`/api/v1`。
 - Health endpoint：`GET /api/v1/system/health`。
+
+## 目录结构
+
+```text
+STDAS/
+├── apps/
+│   └── web/                         # React + TypeScript workbench
+├── crates/
+│   └── services/
+│       └── stdas-gateway/           # Loco gateway service
+├── docs/                            # project source of truth
+├── .cargo/config.toml               # workspace cargo aliases
+├── Cargo.toml                       # Rust workspace
+├── package.json                     # repo-level pnpm scripts
+└── pnpm-workspace.yaml              # frontend workspace membership
+```
+
+根目录 `Cargo.toml` / `Cargo.lock` 和 `package.json` / `pnpm-lock.yaml` / `pnpm-workspace.yaml` 是项目级 workspace 管理文件，应保留在仓库根目录。`node_modules/`、`target/` 和 `apps/web/dist/` 是本地生成目录，已被 Git ignore；根目录 `dist/` 不再是当前结构的有效构建产物位置。更完整的目录规则见 [docs/project-structure.md](docs/project-structure.md)。
 
 ## 项目历史
 
@@ -24,7 +42,13 @@ pnpm install
 运行 Gateway：
 
 ```bash
-cargo run -p stdas-gateway
+cargo loco start
+```
+
+查看 Gateway 路由：
+
+```bash
+cargo loco routes
 ```
 
 运行 Frontend：

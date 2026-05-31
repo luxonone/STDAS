@@ -12,6 +12,7 @@
 | [osat-multi-customer-architecture.md](osat-multi-customer-architecture.md) | OSAT 多客户客制化架构 |
 | [ai-agent-runtime-rules.md](ai-agent-runtime-rules.md) | AI Agent 修改文档或代码前必须读取的项目级运行规则 |
 | [ai-code-generation-governance.md](ai-code-generation-governance.md) | AI 代码生成、偏航提醒、替代方案和待优化标记的治理机制 |
+| [git-github-sop.md](git-github-sop.md) | Git/GitHub 绑定、提交、推送、AI 生成代码和安全回退 SOP |
 | [frontend-backend-sync-design.md](frontend-backend-sync-design.md) | 前端、后端、数据、权限和验收按功能切片同步推进的设计规则 |
 | [feature-slices-v1.md](feature-slices-v1.md) | 首批功能切片交付卡和端点级契约索引 |
 | [architecture-review.md](architecture-review.md) | 架构合理性审查和六问检查结论 |
