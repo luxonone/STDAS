@@ -28,6 +28,10 @@ export function PreflightPage() {
 
     try {
       const health = await readSystemHealth(fetch, signal);
+      if (signal?.aborted) {
+        return;
+      }
+
       setState({ kind: "ready", health });
     } catch (error) {
       if (signal?.aborted) {
@@ -43,6 +47,10 @@ export function PreflightPage() {
 
     void readSystemHealth(fetch, controller.signal)
       .then((health) => {
+        if (controller.signal.aborted) {
+          return;
+        }
+
         setState({ kind: "ready", health });
       })
       .catch((error) => {
@@ -124,7 +132,7 @@ export function PreflightPage() {
                   ? `${state.health.service} reported ${state.health.status}.`
                 : state.kind === "error"
                   ? state.message
-                  : "Waiting for the Loco gateway health response."}
+                  : "Waiting for the Axum gateway health response."}
             </p>
             <div className="status-line">
               <span
@@ -151,7 +159,7 @@ export function PreflightPage() {
 
           <article className="panel">
             <p className="panel__label">Backend runtime</p>
-            <p className="panel__value">Rust + Loco</p>
+            <p className="panel__value">Rust + Axum</p>
             <p className="panel__copy">
               The gateway exposes a stable response envelope under the
               documented /api/v1 prefix.

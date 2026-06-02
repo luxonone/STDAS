@@ -18,7 +18,7 @@
     "web:typecheck": "pnpm --dir apps/web typecheck",
     "web:lint": "pnpm --dir apps/web lint",
     "web:test": "pnpm --dir apps/web test",
-    "gateway:start": "cargo loco start",
-    "gateway:routes": "cargo loco routes"
+    "gateway:start": "cargo run -p stdas-gateway",
+    "gateway:routes": "cargo run -p stdas-gateway -- routes"
   }
 }

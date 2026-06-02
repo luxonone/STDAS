@@ -4,21 +4,13 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 publish = false
-default-run = "stdas-gateway-cli"
 
 [dependencies]
-loco-rs = { version = "0.16.4", default-features = false, features = ["cli"] }
+axum = "0.8.9"
 serde = { version = "1", features = ["derive"] }
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"] }
+tower-http = { version = "0.6.11", features = ["cors"] }
 
 [dev-dependencies]
-axum = "0.8"
-http-body-util = "0.1"
-loco-rs = { version = "0.16.4", default-features = false, features = ["cli", "testing"] }
 serde_json = "1"
 tower = { version = "0.5", features = ["util"] }
-
-[[bin]]
-name = "stdas-gateway-cli"
-path = "src/bin/main.rs"
-required-features = []

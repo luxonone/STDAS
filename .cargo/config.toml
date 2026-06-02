@@ -1,2 +1,3 @@
 [alias]
-loco = "run -p stdas-gateway --"
+gateway = "run -p stdas-gateway --"
+gateway-routes = "run -p stdas-gateway -- routes"
