@@ -2,6 +2,13 @@
 
 本目录保存 STDAS 的长期稳定设计。架构设计一旦确认，不应随具体实现细节频繁改动。影响系统边界、能力域、数据平台方向、部署形态或关键约束的变化，必须通过 ADR 记录。
 
+## 相关 SPEC
+
+| SPEC | 说明 |
+|------|------|
+| [SPEC 中心](../specs/README.md) | 项目铁律、SPEC 和普通文档分区、SPEC 升级规则 |
+| [AI Agent Startup Context SPEC](../specs/agent-startup-context-spec.md) | AI Agent 新会话和新任务开始前必须完成的项目上下文读取 gate |
+
 ## 文档
 
 | 文档 | 说明 |

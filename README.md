@@ -4,7 +4,7 @@
 
 ## 技术栈
 
-- Backend：Rust workspace，`stdas-gateway` 使用 Loco（基于 Axum）和 Tokio。
+- Backend：`apps/api`，Rust workspace，`stdas-gateway` 直接使用 Axum 和 Tokio。
 - Frontend：`apps/web`，Vite、React、TypeScript、pnpm workspace。
 - API prefix：`/api/v1`。
 - Health endpoint：`GET /api/v1/system/health`。
@@ -14,10 +14,8 @@
 ```text
 STDAS/
 ├── apps/
+│   ├── api/                         # Rust + Axum API gateway app
 │   └── web/                         # React + TypeScript workbench
-├── crates/
-│   └── services/
-│       └── stdas-gateway/           # Loco gateway service
 ├── docs/                            # project source of truth
 ├── .cargo/config.toml               # workspace cargo aliases
 ├── Cargo.toml                       # Rust workspace
@@ -42,13 +40,13 @@ pnpm install
 运行 Gateway：
 
 ```bash
-cargo loco start
+cargo gateway
 ```
 
 查看 Gateway 路由：
 
 ```bash
-cargo loco routes
+cargo gateway-routes
 ```
 
 运行 Frontend：

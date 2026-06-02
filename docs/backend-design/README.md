@@ -2,7 +2,13 @@
 
 本目录保存 STDAS Rust 后端设计。后端设计会随实现、性能验证、数据规模和部署方式持续调整，因此允许高频迭代。
 
-当前 Phase 0 / 0.5 本机环境基线记录在 [phase-0-5-environment-validation.md](phase-0-5-environment-validation.md)：Windows + Scoop 原生工具链，`stdas-gateway` HTTP 应用层采用 Loco（基于 Axum），Redis 已安装并可按缓存策略启用；Windows 本地开发不安装、不使用 Docker。
+当前 Phase 0 / 0.5 本机环境基线记录在 [phase-0-5-environment-validation.md](phase-0-5-environment-validation.md)：Windows + Scoop 原生工具链，`stdas-gateway` HTTP 应用层直接采用 Axum，持久化层采用 SQLx + PostgreSQL，不采用 ORM；Redis 已安装并可按缓存策略启用；Windows 本地开发不安装、不使用 Docker。
+
+## 相关 SPEC
+
+| SPEC | 说明 |
+|------|------|
+| [Rust Coding Guidelines SPEC](../specs/rust-coding-guidelines-spec.md) | STDAS 采用 Rust 编码规范中文站作为 Rust coding baseline 的铁律 |
 
 ## 文档
 
@@ -18,6 +24,7 @@
 | [analytics-engine.md](analytics-engine.md) | 分析查询类型、查询预算、缓存、OLAP backend |
 | [api-principles.md](api-principles.md) | API 契约、响应格式、端点组织、错误码 |
 | [api-contract-rules.md](api-contract-rules.md) | 字段取值范围、默认值、编码约束、版本兼容和契约验收 |
+| [loco-error-handling-investigation.md](loco-error-handling-investigation.md) | Loco 默认错误处理开发体验调查日志；当前仅作历史记录，活跃 HTTP 基线以 Axum ADR 为准 |
 | [event-contract-rules.md](event-contract-rules.md) | NATS/Outbox 事件信封、事件清单、幂等和重放规则 |
 | [security-reliability.md](security-reliability.md) | 认证、授权、数据保护、Job 状态机、降级 |
 | [deployment-observability.md](deployment-observability.md) | 部署、配置、日志、指标、健康检查、运维工具 |
@@ -27,7 +34,7 @@
 ## 变更原则
 
 - 后端实现细节可以频繁更新。
-- Rust 代码生成和修改必须遵守 [Rust 代码质量规则](rust-code-quality-rules.md)；AI 生成或修改 Rust 代码还必须遵守 [Rust AI 代码生成规则](rust-ai-code-generation-rules.md)，非平凡后端实现还必须按 [Rust 高质量项目参考与模式](rust-reference-projects-and-patterns.md) 做参考项目校准。
+- Rust 代码生成和修改必须遵守 [Rust Coding Guidelines SPEC](../specs/rust-coding-guidelines-spec.md) 和 [Rust 代码质量规则](rust-code-quality-rules.md)；AI 生成或修改 Rust 代码还必须遵守 [Rust AI 代码生成规则](rust-ai-code-generation-rules.md)，非平凡后端实现还必须按 [Rust 高质量项目参考与模式](rust-reference-projects-and-patterns.md) 做参考项目校准。
 - 查询策略、缓存策略、作业策略应基于验证结果迭代。
 - 不得破坏架构设计中定义的能力域、数据范围和长期演进方向。
 - 重大方向变化需要先更新架构 ADR。

@@ -2,6 +2,8 @@
 
 本文件是 STDAS 后端 Rust 代码生成和修改的事实来源。AI Agent、开发者和代码审查都应以本文件约束 Rust 实现；架构、API、事件、权限等业务规则仍以对应设计文档为准。
 
+> STDAS 同时采用 [Rust Coding Guidelines SPEC](../specs/rust-coding-guidelines-spec.md) 作为通用 Rust coding baseline。本文件负责把外部规范收敛为 STDAS 后端的具体质量规则；如果两者冲突，以本文件和 STDAS 项目事实来源为准。
+
 > AI 生成或修改 Rust 代码还必须读取 [Rust AI 代码生成规则](rust-ai-code-generation-rules.md)；偏航提醒、替代方案和 `TODO(AI-OPTIMIZE, ...)` 机制见 [AI 代码生成治理机制](../architecture-design/ai-code-generation-governance.md)。
 
 ## 目标

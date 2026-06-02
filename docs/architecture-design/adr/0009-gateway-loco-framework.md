@@ -2,7 +2,11 @@
 
 ## 状态
 
-Accepted
+Superseded by [ADR-0011](0011-gateway-axum-sqlx-baseline.md)
+
+## 当前说明
+
+本 ADR 是历史记录。STDAS 当前后端技术基线已经调整为直接使用 Axum，并在持久化层采用 SQLx + PostgreSQL，不采用 ORM。新的执行规则以 ADR-0011、后端设计文档和 SPEC 为准。
 
 ## 背景
 

@@ -16,7 +16,7 @@
 AI 生成代码或提出方案时，依据优先级从高到低为：
 
 1. STDAS 项目文档、现有源码、API 契约、功能切片和 ADR。
-2. 官方或一手技术文档，例如 Rust Book、Rust API Guidelines、rustfmt、Clippy、Tokio、Loco、axum、SQLx、thiserror、tracing、React、TypeScript、Vite。
+2. 官方或一手技术文档，例如 Rust Book、Rust Coding Guidelines 中文站、Rust API Guidelines、rustfmt、Clippy、Tokio、Axum、SQLx、thiserror、tracing、React、TypeScript、Vite。
 3. 成熟开源 Rust 项目和官方示例的工程组织方式，例如 tokio-rs、Meilisearch、Qdrant；具体抽取方式见 [Rust 高质量项目参考与模式](../backend-design/rust-reference-projects-and-patterns.md)。它们只能作为参考，不得直接覆盖 STDAS 架构边界。
 4. 本地验证结果，包括 `cargo check`、`cargo fmt`、`cargo clippy`、`cargo test`、`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm build`。
 

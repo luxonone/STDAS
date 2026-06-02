@@ -276,7 +276,7 @@ STDAS 当前使用 changelog 中的本地编号约定：
 推荐 commit subject：
 
 ```text
-C002 backend: migrate gateway to loco
+C003 backend: rebaseline gateway on axum and sqlx
 D005 docs: add git github safety sop
 ```
 
