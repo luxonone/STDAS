@@ -5,19 +5,19 @@
   "type": "module",
   "packageManager": "pnpm@10.26.0",
   "workspaces": [
-    "apps/*"
+    "frontend/*"
   ],
   "scripts": {
-    "dev": "pnpm --dir apps/web dev",
-    "build": "pnpm --dir apps/web build",
-    "typecheck": "pnpm --dir apps/web typecheck",
-    "lint": "pnpm --dir apps/web lint",
-    "test": "pnpm --dir apps/web test",
-    "web:dev": "pnpm --dir apps/web dev",
-    "web:build": "pnpm --dir apps/web build",
-    "web:typecheck": "pnpm --dir apps/web typecheck",
-    "web:lint": "pnpm --dir apps/web lint",
-    "web:test": "pnpm --dir apps/web test",
+    "dev": "pnpm --dir frontend/web dev",
+    "build": "pnpm --dir frontend/web build",
+    "typecheck": "pnpm --dir frontend/web typecheck",
+    "lint": "pnpm --dir frontend/web lint",
+    "test": "pnpm --dir frontend/web test",
+    "web:dev": "pnpm --dir frontend/web dev",
+    "web:build": "pnpm --dir frontend/web build",
+    "web:typecheck": "pnpm --dir frontend/web typecheck",
+    "web:lint": "pnpm --dir frontend/web lint",
+    "web:test": "pnpm --dir frontend/web test",
     "gateway:start": "cargo run -p stdas-gateway",
     "gateway:routes": "cargo run -p stdas-gateway -- routes"
   }

@@ -1,127 +1,119 @@
 # STDAS 文档中心
 
-STDAS 是面向半导体测试数据的 Rust 数据分析平台。`docs` 是项目事实来源，所有设计、代码和验证工作都必须先从这里建立上下文。
+> **定位**：`docs` 是项目事实来源。所有设计、代码和验证工作都必须先从这里建立上下文。
+> **稳定性分级**：见下方文档分区表，不同分区有不同的稳定性等级和变更节奏。
+> **标准结构**：每个分区 README 都遵循 **定位 → 文档索引 → 任务必读 → 变更原则**。
 
-`docs/specs/` 是 SPEC 专区。SPEC 是项目铁律，优先级高于普通设计文档；普通文档负责背景、设计解释、索引和辅助规则。后续从普通文档升级出来的强制规则，必须进入 SPEC 专区。
+`specs/` 是 SPEC 专区。SPEC 是项目铁律，优先级高于普通设计文档；普通文档负责背景、设计解释、索引和辅助规则。后续从普通文档升级出来的强制规则，必须进入 SPEC 专区。
 
-## Codex 必读入口
+---
 
-每次 Codex 或其他 AI Agent 在本项目中开始开发、设计、修改或审查前，必须先读取：
+## AI Agent 上下文读取
 
-1. [SPEC 中心](specs/README.md)：确认 SPEC 和普通文档的分区、优先级和升级规则。
-2. [AI Agent Startup Context SPEC](specs/agent-startup-context-spec.md)：确认新会话项目级必读和任务级必读。
-3. [docs/README.md](README.md)：确认文档分区、当前阶段和任务阅读路径。
-4. [AI Agent 运行时规则](architecture-design/ai-agent-runtime-rules.md)：确认修改前检查、事实来源和验证 gate。
-5. 与本次任务相关的分区 README 和专题文档。
+AI Agent 的文档读取遵循 [AI Agent Startup Context SPEC](specs/agent-startup-context-spec.md) 定义的分层策略：冷启动完整读取；热延续在确认上下文新鲜时按需增量读取；不确定时必须按冷启动策略或任务路由表补读关键文档。
 
-涉及代码生成、实现路径评审、偏航提醒或待优化标记时，还必须读取 [AI 代码生成治理机制](architecture-design/ai-code-generation-governance.md)。
+### 冷启动（新会话、领域切换、context compaction 后）
+
+按顺序读取：
+
+1. [SPEC 中心](specs/README.md) — 项目铁律、SPEC 和普通文档分区。
+2. [AI Agent Startup Context SPEC](specs/agent-startup-context-spec.md) — 上下文感知分层读取策略。
+3. 本文件 — 文档分区、当前状态和任务路由。
+4. [STDAS 背景知识总览](domain-knowledge/stdas-domain-primer.md) — 业务场景和领域不变量。
+
+### 热延续（同一会话、同一任务领域）
+
+在能够明确确认相关文档已在当前上下文窗口中时，可以跳过重复读取。只按下方任务路由表读取本次请求新增领域或新增风险点对应的专题文档。
+
+### 微调（对上一次输出的延续修改）
+
+在能够明确确认上下文新鲜、任务范围完全一致且不涉及 SPEC、架构、Git/GitHub 或跨域规则时，可以不新增读取，直接基于现有上下文执行。
+
+### 冲突处理
 
 如果任务描述和 `docs` 中的规则冲突，必须先指出冲突，按对应事实来源收敛后再继续。
 
-## 当前状态
+---
 
-当前文档定为 V1 架构和设计基线。后续停止泛化扩写，优先进入首批功能切片规格、Phase 0 代码骨架和 Phase 0.5 环境验证闭环。
+## 任务路由表
 
-当前本机环境记录见 [Phase 0.5 环境验证记录](backend-design/phase-0-5-environment-validation.md)。Phase 0 / 0.5 基线为 Windows + Scoop 本机工具链，前端统一使用 pnpm；Gateway HTTP 应用层直接采用 Axum；持久化层采用 SQLx + PostgreSQL，不采用 ORM；Redis 已安装并可按缓存策略启用；Windows 本地开发不安装、不使用 Docker。
+**按任务类型直接定位必读文档。热延续时只读本次任务新增或上下文不确定的行。**
 
-项目级变更记录见 [CHANGELOG.md](../CHANGELOG.md)。该文件只记录对项目使用者可见的变更和本地 commit 编号约定，不替代架构、前端或后端专题设计文档。
+| 任务类型 | 必读文档 |
+|----------|----------|
+| **领域术语、命名口径** | [领域知识 README](domain-knowledge/README.md) → [stdas-domain-primer.md](domain-knowledge/stdas-domain-primer.md) |
+| **架构边界、服务拆分、ADR** | [架构设计 README](architecture-design/README.md) → [system-architecture.md](architecture-design/system-architecture.md) + [adr/README.md](architecture-design/adr/README.md) |
+| **多客户、DataProfile、客制化** | [osat-multi-customer-architecture.md](architecture-design/osat-multi-customer-architecture.md) + [domain-model.md](architecture-design/domain-model.md) |
+| **功能切片规划或验收** | [frontend-backend-sync-design.md](architecture-design/frontend-backend-sync-design.md) + [feature-slices-v1.md](architecture-design/feature-slices-v1.md) |
+| **AI Agent 运行规则** | [ai-agent-runtime-rules.md](architecture-design/ai-agent-runtime-rules.md) |
+| **AI 代码生成治理** | [ai-code-generation-governance.md](architecture-design/ai-code-generation-governance.md) |
+| **Git/GitHub 操作** | [git-github-sop.md](architecture-design/git-github-sop.md) |
+| **前端页面、路由、状态、组件** | [前端设计 README](frontend-design/README.md) → [frontend-tech-architecture.md](frontend-design/frontend-tech-architecture.md) + [frontend-code-quality-rules.md](frontend-design/frontend-code-quality-rules.md) + [frontend-ai-code-generation-rules.md](frontend-design/frontend-ai-code-generation-rules.md) |
+| **第一阶段全量页面设计** | [frontend-page-design-v1.md](frontend-design/frontend-page-design-v1.md) + [page-hierarchy-design.md](frontend-design/page-hierarchy-design.md) + [ui-ux-constraints.md](frontend-design/ui-ux-constraints.md) |
+| **UI/UX、响应式、表格、图表** | [ui-ux-constraints.md](frontend-design/ui-ux-constraints.md) + [workbench-design.md](frontend-design/workbench-design.md) |
+| **页面 mockup 生成** | [mockup-prompt-workflow.md](frontend-design/mockup-prompt-workflow.md) |
+| **Rust 后端代码** | [后端设计 README](backend-design/README.md) → [Rust Coding Guidelines SPEC](specs/rust-coding-guidelines-spec.md) + [rust-code-quality-rules.md](backend-design/rust-code-quality-rules.md) + [rust-ai-code-generation-rules.md](backend-design/rust-ai-code-generation-rules.md)；非平凡实现还需 [rust-reference-projects-and-patterns.md](backend-design/rust-reference-projects-and-patterns.md) |
+| **API 字段、枚举、错误、分页** | [api-principles.md](backend-design/api-principles.md) + [api-contract-rules.md](backend-design/api-contract-rules.md) |
+| **数据版本、QuerySnapshot、Evidence** | [data-architecture.md](backend-design/data-architecture.md) + [analytics-engine.md](backend-design/analytics-engine.md) |
+| **摄入、Parser、文件安全** | [ingestion-pipeline.md](backend-design/ingestion-pipeline.md) |
+| **缓存、Redis、查询预算** | [cache-strategy.md](backend-design/cache-strategy.md) + [analytics-engine.md](backend-design/analytics-engine.md) |
+| **事件、Outbox/Inbox、重放** | [event-contract-rules.md](backend-design/event-contract-rules.md) |
+| **权限、脱敏、任务状态机** | [security-reliability.md](backend-design/security-reliability.md) |
+| **部署、配置、日志、健康检查** | [deployment-observability.md](backend-design/deployment-observability.md) |
 
-## SPEC 和文档分区
+→ 每行中的 **README** 是该分区的导航入口，包含文档索引、任务必读和变更原则。先读 README 再读具体文档。
 
-| 分区 | 稳定性 | 事实来源范围 |
-|------|--------|--------------|
-| [SPEC](specs/README.md) | 最高稳定 | 项目铁律、启动上下文、编码基线、安全 gate 和不可绕过的流程。 |
-| [领域知识](domain-knowledge/README.md) | 高稳定 | STDAS 背景、OSAT 场景、测试数据语义、用户工作流和领域不变量。 |
-| [架构设计](architecture-design/README.md) | 高稳定 | 产品愿景、领域模型、总体架构、服务边界、关键 ADR、功能切片基线。 |
-| [前端设计](frontend-design/README.md) | 高频演进 | 工作台信息架构、页面、组件、交互、状态、可视化策略和前端代码规则。 |
-| [后端设计](backend-design/README.md) | 高频演进 | Rust workspace、数据平台、摄入、分析、API、安全可靠性、运维和路线图。 |
+---
 
-## 推荐阅读路径
+## 文档分区
 
-### 了解项目
+| 分区 | 位置 | 定位 | 稳定性 | 入口 |
+|------|------|------|--------|------|
+| SPEC | `specs/` | 项目铁律、启动规则、编码基线 | 最高稳定 | [specs/README.md](specs/README.md) |
+| 架构设计 | `architecture-design/` | 产品愿景、领域模型、系统架构、ADR | 高稳定 | [architecture-design/README.md](architecture-design/README.md) |
+| 领域知识 | `domain-knowledge/` | STDAS 背景、OSAT 场景、测试数据语义 | 高稳定 | [domain-knowledge/README.md](domain-knowledge/README.md) |
+| 前端设计 | `frontend-design/` | 页面、组件、交互、状态、可视化 | 高频演进 | [frontend-design/README.md](frontend-design/README.md) |
+| 后端设计 | `backend-design/` | Rust workspace、数据平台、API | 高频演进 | [backend-design/README.md](backend-design/README.md) |
+| 验证记录 | `verification/` | Phase 0/0.5 环境验证截图和记录 | 辅助 | [phase-0-preflight.md](verification/phase-0-preflight.md) |
 
-1. [领域知识总览](domain-knowledge/stdas-domain-primer.md)
-2. [产品愿景](architecture-design/product-vision.md)
-3. [领域模型](architecture-design/domain-model.md)
-4. [系统架构](architecture-design/system-architecture.md)
+每个分区 README 都遵循标准结构：**定位 → 文档索引 → 任务必读 → 变更原则**。AI Agent 只需读取对应分区的 README 即可获得完整的导航信息。
 
-### 开始开发
-
-1. [SPEC 中心](specs/README.md)
-2. [AI Agent Startup Context SPEC](specs/agent-startup-context-spec.md)
-3. [AI Agent 运行时规则](architecture-design/ai-agent-runtime-rules.md)
-4. [AI 代码生成治理机制](architecture-design/ai-code-generation-governance.md)
-5. [Git / GitHub 安全 SOP](architecture-design/git-github-sop.md)
-6. [前后端同步设计](architecture-design/frontend-backend-sync-design.md)
-7. [首批功能切片 V1](architecture-design/feature-slices-v1.md)
-8. [Phase 0.5 环境验证记录](backend-design/phase-0-5-environment-validation.md)
-
-### 前端任务
-
-1. [前端设计 README](frontend-design/README.md)
-2. [前端技术架构](frontend-design/frontend-tech-architecture.md)
-3. [前端代码质量规则](frontend-design/frontend-code-quality-rules.md)
-4. [前端 AI 代码生成规则](frontend-design/frontend-ai-code-generation-rules.md)
-5. [页面层级设计](frontend-design/page-hierarchy-design.md)
-6. [UI/UX 约束](frontend-design/ui-ux-constraints.md)
-
-页面 mockup、视觉稿或图片生成任务还必须读取 [Mockup Prompt Workflow](frontend-design/mockup-prompt-workflow.md)。
-
-### 后端任务
-
-1. [后端设计 README](backend-design/README.md)
-2. [Rust Workspace 与服务边界](backend-design/workspace-and-crates.md)
-3. [Rust Coding Guidelines SPEC](specs/rust-coding-guidelines-spec.md)
-4. [Rust 代码质量规则](backend-design/rust-code-quality-rules.md)
-5. [Rust AI 代码生成规则](backend-design/rust-ai-code-generation-rules.md)
-6. [Rust 高质量项目参考与模式](backend-design/rust-reference-projects-and-patterns.md)
-7. [API 契约原则](backend-design/api-principles.md)
-8. [API 契约规则](backend-design/api-contract-rules.md)
-
-涉及数据、查询、缓存、事件或运维时，再读取对应专题文档。
-
-## 任务到文档映射
-
-| 任务 | 必读文档 |
-|------|----------|
-| 新会话开始开发、设计、修改或审查 | [SPEC 中心](specs/README.md)、[AI Agent Startup Context SPEC](specs/agent-startup-context-spec.md)、[AI Agent 运行时规则](architecture-design/ai-agent-runtime-rules.md) |
-| 领域术语、命名口径、FT/CP/BI/SLT 边界 | [领域知识总览](domain-knowledge/stdas-domain-primer.md)、[领域模型](architecture-design/domain-model.md) |
-| 架构边界、服务拆分、长期约束 | [架构设计 README](architecture-design/README.md)、[系统架构](architecture-design/system-architecture.md)、[ADR](architecture-design/adr/README.md) |
-| 多客户、DataProfile、客制化 | [OSAT 多客户客制化架构](architecture-design/osat-multi-customer-architecture.md)、[领域模型](architecture-design/domain-model.md) |
-| 功能切片规划或验收 | [前后端同步设计](architecture-design/frontend-backend-sync-design.md)、[首批功能切片 V1](architecture-design/feature-slices-v1.md) |
-| 前端页面、路由、状态、组件 | [前端设计 README](frontend-design/README.md)、[前端技术架构](frontend-design/frontend-tech-architecture.md)、[前端代码质量规则](frontend-design/frontend-code-quality-rules.md)、[前端 AI 代码生成规则](frontend-design/frontend-ai-code-generation-rules.md)、[页面层级设计](frontend-design/page-hierarchy-design.md)、[前端工作台设计](frontend-design/workbench-design.md) |
-| 第一阶段全量页面、次级页面、独立页面设计 | [前端页面设计 V1](frontend-design/frontend-page-design-v1.md)、[页面层级设计](frontend-design/page-hierarchy-design.md)、[UI/UX 约束](frontend-design/ui-ux-constraints.md) |
-| UI/UX、响应式、表格、图表 | [UI/UX 约束](frontend-design/ui-ux-constraints.md)、[前端代码质量规则](frontend-design/frontend-code-quality-rules.md) |
-| Rust 后端代码 | [后端设计 README](backend-design/README.md)、[Rust Workspace 与服务边界](backend-design/workspace-and-crates.md)、[Rust Coding Guidelines SPEC](specs/rust-coding-guidelines-spec.md)、[Rust 代码质量规则](backend-design/rust-code-quality-rules.md)、[Rust AI 代码生成规则](backend-design/rust-ai-code-generation-rules.md)、[Rust 高质量项目参考与模式](backend-design/rust-reference-projects-and-patterns.md) |
-| API 字段、枚举、错误、分页、兼容 | [API 契约原则](backend-design/api-principles.md)、[API 契约规则](backend-design/api-contract-rules.md) |
-| 数据版本、QuerySnapshot、Evidence | [数据平台架构](backend-design/data-architecture.md)、[分析引擎](backend-design/analytics-engine.md) |
-| 摄入、Parser、文件安全 | [摄入流水线](backend-design/ingestion-pipeline.md)、[安全与可靠性](backend-design/security-reliability.md) |
-| 缓存、Redis、查询预算 | [缓存与 Redis 使用策略](backend-design/cache-strategy.md)、[分析引擎](backend-design/analytics-engine.md) |
-| 事件、Outbox/Inbox、重放 | [事件契约规则](backend-design/event-contract-rules.md)、[系统架构](architecture-design/system-architecture.md) |
-| 部署、配置、日志、指标、健康检查 | [部署与可观测性](backend-design/deployment-observability.md)、[Phase 0.5 环境验证记录](backend-design/phase-0-5-environment-validation.md) |
+---
 
 ## 跨域规则
 
 | 文档 | 说明 |
 |------|------|
-| [SPEC 中心](specs/README.md) | 项目铁律、SPEC 和普通文档分区、SPEC 升级规则。 |
-| [AI Agent Startup Context SPEC](specs/agent-startup-context-spec.md) | AI Agent 新会话和新任务开始前必须完成的项目上下文读取 gate。 |
-| [AI Agent 运行时规则](architecture-design/ai-agent-runtime-rules.md) | AI Agent 修改文档或代码前必须读取的项目规则。 |
-| [AI 代码生成治理机制](architecture-design/ai-code-generation-governance.md) | AI 生成代码时的偏航提醒、替代方案、用户坚持原方案后的待优化标记机制。 |
-| [Git / GitHub 安全 SOP](architecture-design/git-github-sop.md) | GitHub 绑定、提交、推送、AI 生成代码和安全回退流程。 |
-| [前后端同步设计](architecture-design/frontend-backend-sync-design.md) | 前端和后端按功能切片同步设计、同步修改、同步验收。 |
-| [首批功能切片 V1](architecture-design/feature-slices-v1.md) | 第一批端到端功能切片的页面、API、权限、数据语义和验收基线。 |
-| [项目目录结构](project-structure.md) | monorepo 顶层目录、前端应用、后端服务、工具、文档边界和本地生成目录管理规则。 |
+| [SPEC 中心](specs/README.md) | 项目铁律、SPEC 和普通文档分区、SPEC 升级规则 |
+| [AI Agent Startup Context SPEC](specs/agent-startup-context-spec.md) | 上下文感知分层读取策略：冷启动/热延续/微调三级读取 gate |
+| [AI Agent 运行时规则](architecture-design/ai-agent-runtime-rules.md) | AI Agent 修改文档或代码前的工作方式、上下文读取策略和交付检查 |
+| [AI 代码生成治理机制](architecture-design/ai-code-generation-governance.md) | AI 生成代码时的偏航提醒、替代方案、用户坚持原方案后的待优化标记机制 |
+| [Git / GitHub 安全 SOP](architecture-design/git-github-sop.md) | GitHub 绑定、提交、推送、AI 生成代码和安全回退流程 |
+| [前后端同步设计](architecture-design/frontend-backend-sync-design.md) | 前端和后端按功能切片同步设计、同步修改、同步验收 |
+| [首批功能切片 V1](architecture-design/feature-slices-v1.md) | 第一批端到端功能切片的页面、API、权限、数据语义和验收基线 |
+| [项目目录结构](project-structure.md) | monorepo 顶层目录、前端应用、后端服务、工具、文档边界和本地生成目录管理规则 |
+
+---
+
+## 当前状态
+
+当前文档定为 V1 架构和设计基线。后续停止泛化扩写，优先进入首批功能切片规格、Phase 0 代码骨架和 Phase 0.5 环境验证闭环。
+
+当前活跃后端 runtime 口径见 [ADR-0014](architecture-design/adr/0014-gateway-modular-monolith.md)：`stdas-gateway` 是第一阶段唯一 backend runtime service，内部采用 strong module boundary；多服务、NATS、Outbox/Inbox、MinIO 等能力为触发条件满足后的 future expansion，不作为 Phase 0 必需项。
+
+当前本机环境记录见 [Phase 0.5 环境验证记录](backend-design/phase-0-5-environment-validation.md)。Phase 0 / 0.5 基线为 Windows + Scoop 本机工具链，前端统一使用 pnpm；Gateway HTTP 应用层直接采用 Axum；持久化层采用 SQLx + PostgreSQL，不采用 ORM；Redis 已安装并可按缓存策略启用；Windows 本地开发不安装、不使用 Docker。
+
+---
 
 ## 维护规则
 
 - 架构设计只记录长期稳定的系统边界和原则，重大变化必须新增 ADR。
 - 领域知识记录业务事实和行业语义，不承载具体实现方案。
-- 前端设计可以随产品体验、页面结构和组件实现持续迭代。
-- 后端设计可以随 Rust 实现、数据规模、查询策略和部署方式持续迭代。
+- 前端和后端按功能切片同步推进；同一切片必须能追溯到页面、API、数据、权限、状态和验收。
 - 前后端文档不得反向修改架构原则；需要改变架构时先提交 ADR。
-- `docs/README.md` 只作为总入口和阅读地图，不承载详细设计。
+- `docs/README.md` 只作为入口和路由中心，不承载详细设计。
 - 强制性规则优先放入 `docs/specs/`；普通文档只能引用 SPEC，不能复制或改写铁律正文。
 - 新增或移动文档时，必须同步更新本入口、对应分区 README 和相关交叉引用。
 - 进入代码实现前必须完成环境验证 gate，确认 build/test 和 AI Agent 修复闭环可跑。
 - V1 baseline 之后新增规则必须服务于具体功能切片或代码实现，不再扩写泛化原则。
+- 每个分区 README 必须遵循标准结构：**定位 → 文档索引 → 任务必读 → 变更原则**。

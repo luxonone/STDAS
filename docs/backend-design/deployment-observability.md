@@ -1,8 +1,20 @@
 ﻿# 部署与可观测性
 
-STDAS 采用原生分布式进程部署。每个服务是独立 Rust 二进制，可在 Windows 或 Linux 上直接运行。单节点部署使用 `localhost`，多节点部署通过配置切换为实际 IP。
+当前阶段遵循 [ADR-0014](../architecture-design/adr/0014-gateway-modular-monolith.md)：后端只部署一个 Rust 运行服务 `stdas-gateway`，内部通过强 module boundary 保持可拆分性。本文保留的多进程部署内容是未来满足拆分触发条件后的目标形态，不是当前 Phase 0 的执行要求。
 
-## 运行进程
+当前部署拓扑：
+
+```text
+runtime/
+├── stdas-gateway
+├── postgresql
+├── config/
+└── logs/
+```
+
+未来服务化后，STDAS 采用原生分布式进程部署。每个服务是独立 Rust 二进制，可在 Windows 或 Linux 上直接运行。单节点部署使用 `localhost`，多节点部署通过配置切换为实际 IP。
+
+## 未来运行进程
 
 ```text
 runtime/
@@ -22,7 +34,7 @@ runtime/
 
 ## 配置即拓扑
 
-每个服务通过 TOML 配置获知依赖服务地址，不依赖外部注册中心。
+当前 `stdas-gateway` 只需要自身配置和直接依赖配置。未来服务化后，每个服务通过 TOML 配置获知依赖服务地址，不依赖外部注册中心。
 
 ```toml
 [server]
@@ -72,9 +84,9 @@ pub fn data_dir() -> std::path::PathBuf {
 }
 ```
 
-## Linux 进程管理
+## 未来 Linux 进程管理
 
-生产环境使用 systemd。
+未来多服务生产环境使用 systemd。
 
 ```ini
 [Unit]
@@ -94,9 +106,9 @@ StandardError=journal
 WantedBy=multi-user.target
 ```
 
-## Windows 进程管理
+## 未来 Windows 进程管理
 
-生产环境使用 Windows Service。
+未来多服务生产环境使用 Windows Service。
 
 ```powershell
 New-Service -Name "STDASDataPipeline" `
@@ -106,9 +118,9 @@ New-Service -Name "STDASDataPipeline" `
     -StartupType Automatic
 ```
 
-## 开发启动脚本
+## 未来开发启动脚本
 
-开发环境可以直接启动所有进程。
+服务拆分后，开发环境可以直接启动所有进程。
 
 ```text
 scripts/start-all.ps1
@@ -117,7 +129,7 @@ scripts/start-all.sh
 scripts/stop-all.sh
 ```
 
-启动顺序：
+未来服务化启动顺序：
 
 1. PostgreSQL。
 2. MinIO。
@@ -219,7 +231,7 @@ scripts/stop-all.sh
 | dead_letter count | 0 | > 0 立即告警 |
 | job retry rate | 低于基线 | 异常升高告警 |
 | analysis over-budget rate | 低于基线 | 异常升高需要评估查询预算或索引 |
-| stale Overview age | < 页面默认新鲜度 | 超过阈值显示 stale 并告警 |
+| stale query snapshot age | < 默认新鲜度 | 超过阈值显示 stale 并告警 |
 | export expired download attempts | 监控 | 异常增长告警，可能代表链接或保留策略问题 |
 
 告警必须带 `service_name`、`correlation_id` 或可追踪对象 ID。无法定位到请求、job、event、query snapshot 或 DataVersion 的告警不可验收。

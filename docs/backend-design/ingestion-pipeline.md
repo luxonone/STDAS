@@ -1,6 +1,33 @@
 ﻿# 摄入流水线
 
-## 跨服务流水线
+当前阶段遵循 [ADR-0014](../architecture-design/adr/0014-gateway-modular-monolith.md)：摄入、解析、归一化和 lineage 先落在 `stdas-gateway` 进程内的 `modules/data_pipeline`。本文的 `*-service` 流水线图表示未来服务化后的拓扑；当前实现应先保持 module boundary 清晰，不提前引入跨进程通信。
+
+## 当前模块流水线
+
+```text
+stdas-gateway
+  -> upload / register file
+  -> modules/data_pipeline
+       -> Validate File
+       -> Store Raw
+       -> Create Ingestion Job
+       -> Detect File Envelope
+       -> Build ProfileResolutionKey
+       -> Resolve DataProfile / ParserProfile / MappingProfile / SpecProfile
+       -> Parse To Staging
+       -> Normalize By Mapping
+       -> Validate Business Rules
+       -> Commit Canonical Data
+       -> Create DataVersion
+  -> modules/analytics
+       -> Build Aggregates
+       -> Evaluate Alerts
+  -> modules/workflow
+       -> Track job state
+       -> Retry / compensate / mark DataVersion Ready
+```
+
+## 未来跨服务流水线
 
 ```text
 stdas-gateway
@@ -81,7 +108,7 @@ program_version
 effective_time
 ```
 
-客户/测试类型/测试站点/设备专用 parser 可以存在，多个 DataProfile 也可以共享同一个 ParserRule。需要隔离变更时，可以从共享规则复制分叉出新的 ParserRule 独立维护。所有 parser 必须注册在 ParserRegistry 中，并由 DataProfile 选择。`data-pipeline-service` 的主流程不直接引用客户专用 parser 类型。
+客户/测试类型/测试站点/设备专用 parser 可以存在，多个 DataProfile 也可以共享同一个 ParserRule。需要隔离变更时，可以从共享规则复制分叉出新的 ParserRule 独立维护。所有 parser 必须注册在 ParserRegistry 中，并由 DataProfile 选择。`modules/data_pipeline` 的主流程不直接引用客户专用 parser 类型；未来服务化后同样适用于 `data-pipeline-service`。
 
 ## 幂等规则
 

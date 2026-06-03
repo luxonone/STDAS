@@ -1,5 +1,7 @@
 ﻿# 数据平台架构
 
+当前阶段遵循 [ADR-0014](../architecture-design/adr/0014-gateway-modular-monolith.md)：`stdas-gateway` 是唯一后端运行服务，数据所有权先按 `modules/*` 逻辑边界治理。本文出现的 `*-service` 表示未来满足拆分触发条件后的服务形态，不表示当前必须启动多个 Rust 进程。
+
 ## 数据分层
 
 | 层 | 存储 | 说明 |
@@ -8,7 +10,7 @@
 | Staging Zone | PostgreSQL staging 表或临时文件 | 解析后的中间结构、校验结果 |
 | Core Zone | PostgreSQL | Lot、Summary、Bin、用户、规则、任务、审计 |
 | Analytics Zone | 聚合表、Parquet、DuckDB | 参数明细、交互式分析、图表数据 |
-| Cache Zone | 内存或 Redis | Options、Overview、热点查询、token revocation；具体策略见 [cache-strategy.md](cache-strategy.md) |
+| Cache Zone | 内存或 Redis | Options、轻量查询快照、热点查询、token revocation；具体策略见 [cache-strategy.md](cache-strategy.md) |
 
 ## 客户配置域
 
@@ -27,25 +29,25 @@ OSAT 多客户场景下，PostgreSQL 还负责保存客户配置域：
 - parser/mapping/spec rule bindings。
 - rule fork lineage。
 - alert rule sets。
-- overview/report/export templates。
+- 查询快照、报表、导出模板。
 - feature flags。
 
 这些配置必须版本化，且入库数据必须记录当时使用的版本。
 
-## 服务数据所有权
+## 数据所有权
 
-STDAS 允许在早期共享一个 PostgreSQL 实例，但逻辑上按服务 schema/database 隔离。服务只能写自己的 schema/database，不能直接读写其他服务内部表。
+STDAS 允许在早期共享一个 PostgreSQL 实例，但逻辑上按 module schema/database 隔离。当前模块只能写自己的 schema/database，不能直接读写其他模块内部表；未来服务化后沿用同一所有权边界。
 
-| 服务 | 默认数据域 |
-|------|------|
-| `identity-service` | 用户、角色、token family、会话、权限 |
-| `customer-service` | CustomerConfig、DataProfile、ProfileResolutionKey、parser/mapping/spec/template 版本、规则复用/复制分叉、客户专属扩展声明 |
-| `data-pipeline-service` | 文件登记、raw metadata、staging、归一化记录、Lot、LotRun、TestFile、Summary、Bin、参数索引、DataVersion、lineage |
-| `analytics-service` | AnalysisResult、聚合表、查询缓存索引、OLAP 文件索引、告警规则、告警事件、分析会话、模板、导出记录 |
-| `workflow-service` | Saga、Process Manager、作业状态、重试和补偿 |
-| `integration-service` | 外部系统连接、同步 checkpoint、交换记录 |
+| 当前模块 | 默认数据域 | 未来服务 |
+|------|------|------|
+| `modules/identity` | 用户、角色、token family、会话、权限 | `identity-service` |
+| `modules/customer` | CustomerConfig、DataProfile、ProfileResolutionKey、parser/mapping/spec/template 版本、规则复用/复制分叉、客户专属扩展声明 | `customer-service` |
+| `modules/data_pipeline` | 文件登记、raw metadata、staging、归一化记录、Lot、LotRun、TestFile、Summary、Bin、参数索引、DataVersion、lineage | `data-pipeline-service` |
+| `modules/analytics` | AnalysisResult、聚合表、查询缓存索引、OLAP 文件索引、告警规则、告警事件、分析会话、模板、导出记录 | `analytics-service` |
+| `modules/workflow` | Saga、Process Manager、作业状态、重试和补偿 | `workflow-service` |
+| `modules/integration` | 外部系统连接、同步 checkpoint、交换记录 | `integration-service` |
 
-跨服务查询通过 gRPC、事件构建的本地 projection 或 gateway 聚合完成。
+当前跨模块协作通过 Rust module API 和清晰 DTO 完成；未来跨服务查询通过 gRPC、事件构建的本地 projection 或 gateway 聚合完成。
 
 ## PostgreSQL 定位
 
@@ -125,7 +127,7 @@ Investigation Evidence 必须引用 QuerySnapshot，并有独立 `evidence_versi
 | spec_rules | 参数规格限、产品、程序版本规则 |
 | rule_forks | 规则复制分叉来源、原因和审计 |
 | alert_rule_sets | 客户告警规则集版本 |
-| template_profiles | Overview、报表、导出模板 |
+| template_profiles | 查询快照、报表、导出模板 |
 
 每个配置版本应有生效时间、失效时间、创建人和审计记录。
 

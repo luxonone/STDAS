@@ -42,7 +42,7 @@ loco-rs 0.16.4
 
 来源：
 
-- `apps/api/Cargo.toml`
+- `backend/services/stdas-gateway/Cargo.toml`
 - `Cargo.lock`
 
 ## Loco 0.16.4 当前行为

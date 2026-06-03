@@ -6,11 +6,13 @@ STDAS 已保存该规范的完整上游快照：[vendor/rust-coding-guidelines-z
 
 本文是 SPEC，适用于：
 
-- `crates/services/**`
-- `crates/libs/**`
-- `crates/shared/**`
-- `crates/tools/**`
+- `backend/services/**`
+- `backend/libs/**`
+- `backend/shared/**`
+- `backend/tools/**`
 - 后续所有 Rust backend crate
+
+旧 `crates/**` 路径不再是 STDAS 当前目录事实来源；如果历史文档中仍出现该路径，应以 [项目目录结构](../project-structure.md) 和当前 workspace `Cargo.toml` 为准。
 
 ## 依据优先级
 

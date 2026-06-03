@@ -1,7 +1,9 @@
 ﻿# ADR-0002：采用 Rust 原生分布式微服务数据平台架构
 
-状态：Accepted
+状态：Superseded
 日期：2026-05-17
+
+> 当前第一阶段 runtime 形态已由 [ADR-0014](0014-gateway-modular-monolith.md) 调整为 `stdas-gateway` 单一运行服务 + 强模块边界。本文保留为历史设计记录和未来服务化参考。
 
 ## 背景
 

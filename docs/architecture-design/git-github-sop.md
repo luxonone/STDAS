@@ -291,7 +291,7 @@ git diff --cached
 
 - `node_modules/`
 - `target/`
-- `apps/web/dist/`
+- `frontend/web/dist/`
 - `.swarm/`
 - `reference-project/`
 

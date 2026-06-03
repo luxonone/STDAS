@@ -2,7 +2,9 @@
 
 ## 状态
 
-Accepted
+Superseded
+
+本 ADR 已被 [ADR-0013](0013-backend-frontend-physical-partition.md) 取代。`stdas-gateway` 当前位于 `backend/services/stdas-gateway`，不再位于 `apps/api`。
 
 ## 背景
 

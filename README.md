@@ -4,8 +4,8 @@
 
 ## 技术栈
 
-- Backend：`apps/api`，Rust workspace，`stdas-gateway` 直接使用 Axum 和 Tokio。
-- Frontend：`apps/web`，Vite、React、TypeScript、pnpm workspace。
+- Backend：`backend/services/stdas-gateway`，Rust workspace，`stdas-gateway` 直接使用 Axum 和 Tokio。
+- Frontend：`frontend/web`，Vite、React、TypeScript、pnpm workspace。
 - API prefix：`/api/v1`。
 - Health endpoint：`GET /api/v1/system/health`。
 
@@ -13,8 +13,10 @@
 
 ```text
 STDAS/
-├── apps/
-│   ├── api/                         # Rust + Axum API gateway app
+├── backend/
+│   └── services/
+│       └── stdas-gateway/           # Rust + Axum API gateway service
+├── frontend/
 │   └── web/                         # React + TypeScript workbench
 ├── docs/                            # project source of truth
 ├── .cargo/config.toml               # workspace cargo aliases
@@ -23,7 +25,7 @@ STDAS/
 └── pnpm-workspace.yaml              # frontend workspace membership
 ```
 
-根目录 `Cargo.toml` / `Cargo.lock` 和 `package.json` / `pnpm-lock.yaml` / `pnpm-workspace.yaml` 是项目级 workspace 管理文件，应保留在仓库根目录。`node_modules/`、`target/` 和 `apps/web/dist/` 是本地生成目录，已被 Git ignore；根目录 `dist/` 不再是当前结构的有效构建产物位置。更完整的目录规则见 [docs/project-structure.md](docs/project-structure.md)。
+根目录 `Cargo.toml` / `Cargo.lock` 和 `package.json` / `pnpm-lock.yaml` / `pnpm-workspace.yaml` 是项目级 workspace 管理文件，应保留在仓库根目录。`node_modules/`、`target/` 和 `frontend/web/dist/` 是本地生成目录，已被 Git ignore；根目录 `dist/` 不再是当前结构的有效构建产物位置。更完整的目录规则见 [docs/project-structure.md](docs/project-structure.md)。
 
 ## 项目历史
 

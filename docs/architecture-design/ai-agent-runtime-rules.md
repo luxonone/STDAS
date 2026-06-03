@@ -2,9 +2,13 @@
 
 本文件定义 AI Agent 在 STDAS 项目中修改文档、设计或代码前的工作方式。它是 [AI Agent Startup Context SPEC](../specs/agent-startup-context-spec.md) 的运行时辅助文档，只规定读取顺序、边界判断和交付检查，不重复前端、后端或架构文档中的具体规则。
 
-## Codex 启动必读
+## 上下文读取策略
 
-Codex 或其他 AI Agent 每次进入 STDAS 工作区并准备修改文档、设计或代码前，必须按顺序读取：
+Codex 或其他 AI Agent 在 STDAS 中的文档读取遵循 [AI Agent Startup Context SPEC](../specs/agent-startup-context-spec.md) 定义的分层策略：冷启动完整读取；热延续在确认上下文新鲜时按需增量读取；不确定时必须按冷启动策略或任务路由表补读关键文档。
+
+### 冷启动（新会话、领域切换、context compaction 后）
+
+按顺序读取：
 
 1. [SPEC 中心](../specs/README.md)
 2. [AI Agent Startup Context SPEC](../specs/agent-startup-context-spec.md)
@@ -13,26 +17,25 @@ Codex 或其他 AI Agent 每次进入 STDAS 工作区并准备修改文档、设
 5. 与任务相关的分区 README。
 6. 与任务相关的专题文档。
 
-涉及代码生成、实现路径评审、偏航提醒或待优化标记时，还必须读取 [AI 代码生成治理机制](ai-code-generation-governance.md)。
+### 热延续（同一会话、同一任务领域）
 
-涉及 Git、GitHub、提交、推送、分支、回退、reset、clean、rebase 或 force push 时，还必须读取 [Git / GitHub 安全 SOP](git-github-sop.md)。
+在能够明确确认相关文档已在当前上下文窗口中时，可以跳过重复读取。只读取本次请求新增领域或新增风险点对应的专题文档。
+
+### 微调（对上一次输出的延续修改）
+
+在能够明确确认上下文新鲜、任务范围完全一致且不涉及 SPEC、架构、Git/GitHub 或跨域规则时，可以不新增读取，直接基于现有上下文执行。
+
+### 条件触发读取
+
+以下场景会触发额外读取（通过 [docs 入口](../README.md) 的任务路由表定位）：
+
+- 涉及代码生成、实现路径评审、偏航提醒或待优化标记 → [AI 代码生成治理机制](ai-code-generation-governance.md)
+- 涉及 Git、GitHub、提交、推送、分支、回退、reset、clean、rebase 或 force push → [Git / GitHub 安全 SOP](git-github-sop.md)
+- 任务领域切换 → 按 [docs 入口](../README.md) 任务路由表读取对应分区 README 和专题文档
 
 Git/GitHub 任务必须先进入只读诊断模式。完成当前分支、remote、提交作者、工作区改动、未跟踪文件和删除文件检查之前，AI Agent 不得执行 `git add`、`git commit`、`git push`、`git reset`、`git clean`、`git restore` 或分支改名。
 
-最低读取要求：
-
-| 任务范围 | 额外必读 |
-|----------|----------|
-| 领域或业务语义 | [领域知识 README](../domain-knowledge/README.md)、[STDAS 背景知识总览](../domain-knowledge/stdas-domain-primer.md) |
-| 架构、服务边界、ADR | [架构设计 README](README.md)、[系统架构](system-architecture.md)、[ADR 目录](adr/README.md) |
-| Git、GitHub、提交、推送、分支、回退 | [Git / GitHub 安全 SOP](git-github-sop.md) |
-| 前端页面或代码 | [前端设计 README](../frontend-design/README.md)、[前端技术架构](../frontend-design/frontend-tech-architecture.md)、[前端代码质量规则](../frontend-design/frontend-code-quality-rules.md)、[前端 AI 代码生成规则](../frontend-design/frontend-ai-code-generation-rules.md) |
-| UI/UX、表格、图表、工作台体验 | [UI/UX 约束](../frontend-design/ui-ux-constraints.md)、[前端工作台设计](../frontend-design/workbench-design.md) |
-| 后端 Rust 代码 | [后端设计 README](../backend-design/README.md)、[Rust Workspace 与服务边界](../backend-design/workspace-and-crates.md)、[Rust Coding Guidelines SPEC](../specs/rust-coding-guidelines-spec.md)、[Rust 代码质量规则](../backend-design/rust-code-quality-rules.md)、[Rust AI 代码生成规则](../backend-design/rust-ai-code-generation-rules.md)、[Rust 高质量项目参考与模式](../backend-design/rust-reference-projects-and-patterns.md) |
-| API、数据、查询、缓存、事件、安全 | [后端设计 README](../backend-design/README.md) 以及对应专题文档 |
-| 功能切片端到端交付 | [前后端同步设计](frontend-backend-sync-design.md)、[首批功能切片 V1](feature-slices-v1.md) |
-
-如果当前任务只询问事实或做轻量说明，也必须至少以 [docs/README.md](../README.md) 和本文件作为上下文；如果涉及实现或修改，则必须继续读取任务相关专题文档。
+如果当前任务只询问事实或做轻量说明，可以只以 [docs/README.md](../README.md) 和本文件作为上下文；如果涉及实现或修改，则按上下文新鲜度等级确定是否需要继续读取任务相关专题文档。
 
 ## 单一事实来源
 

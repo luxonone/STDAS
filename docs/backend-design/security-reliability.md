@@ -1,5 +1,7 @@
 ﻿# 安全与可靠性
 
+当前阶段遵循 [ADR-0014](../architecture-design/adr/0014-gateway-modular-monolith.md)：安全规则先约束 `stdas-gateway` 和内部 `modules/*`，未来服务化后再扩展到跨服务 gRPC、NATS subject、mTLS 和服务身份。
+
 ## 身份认证
 
 - Access token 使用短 TTL。
@@ -35,7 +37,7 @@ Principal
 
 | 能力 | engineer | admin | Scope 要求 | 审计 |
 |------|----------|-------|------------|------|
-| 查看 Overview | allow | allow | CustomerScope | no |
+| 查看轻量查询快照 | allow | allow | CustomerScope | no |
 | 查看 Lot 列表 | allow | allow | CustomerScope | no |
 | 查看 Lot / Run / File / DataVersion 详情 | allow | allow | CustomerScope + data access | no |
 | 运行分析查询 | allow | allow | CustomerScope + DataVersion access | yes |
@@ -76,15 +78,15 @@ Principal
 - 分享链接、workspace、query snapshot、case 和导出下载必须在访问时重新校验权限。
 - 响应中的敏感字段必须按权限策略返回明文、masked、hidden 或 unauthorized。
 
-## 服务间安全
+## 内部边界安全
 
 - 外部请求只能进入 `stdas-gateway`。
-- 内部服务端口默认只对受信网络开放。
-- gateway 到内部服务传递已验证的 `Principal` 和 `CustomerScope`。
-- 内部 gRPC 调用必须携带 service identity、request id、correlation id。
-- 生产环境应启用 mTLS 或等效的内网身份校验。
-- NATS subject 按服务和事件域命名，发布/订阅权限最小化。
-- 对象存储 bucket/prefix 按环境和客户范围隔离。
+- 当前跨模块调用必须显式传递或引用已验证的 `Principal` 和 `CustomerScope`，不得在业务模块内重新推断权限。
+- 未来服务化后，内部服务端口默认只对受信网络开放。
+- 未来内部 gRPC 调用必须携带 service identity、request id、correlation id。
+- 未来生产多服务环境应启用 mTLS 或等效的内网身份校验。
+- 未来 NATS subject 按服务和事件域命名，发布/订阅权限最小化。
+- 对象存储 bucket/prefix 按环境和客户范围隔离；当前本地文件 adapter 也必须保留同样的隔离语义。
 
 ## Job 状态机
 
@@ -135,13 +137,13 @@ queued
 - 事件消费必须写入 inbox 幂等记录。
 - 每个事件必须包含 `event_id`、`correlation_id`、`causation_id`、`occurred_at` 和 schema version。
 - Consumer 失败后按指数退避重试，超过上限进入 dead letter。
-- `workflow-service` 负责跨服务超时、补偿和人工介入状态。
+- 当前 `modules/workflow` 负责跨模块长流程、超时、补偿和人工介入状态；未来服务化后升级为 `workflow-service`。
 
 ## 降级策略
 
 - 外部系统不可用时使用缓存并标注数据新鲜度。
 - Analytics backend 不可用时返回明确错误，不退化为无限扫 PostgreSQL。
-- Overview 可返回最近成功快照。
+- 轻量查询快照可返回最近成功版本。
 - 告警计算失败不阻塞摄入主流程。
 
 ## 查询和任务可靠性

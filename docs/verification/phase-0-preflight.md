@@ -5,11 +5,11 @@ development starts.
 
 ## Scope
 
-- Rust workspace root with `apps/api` as the `stdas-gateway` crate.
+- Rust workspace root with `backend/services/stdas-gateway` as the `stdas-gateway` crate.
 - Axum-based gateway health endpoint at `GET /api/v1/system/health`.
 - Standard API success envelope with `code`, `message`, and `data`.
-- Vite React TypeScript frontend under `apps/web`.
-- Frontend API access isolated under `apps/web/src/shared/api`.
+- Vite React TypeScript frontend under `frontend/web`.
+- Frontend API access isolated under `frontend/web/src/shared/api`.
 - A preflight workbench page that verifies the frontend can reach the gateway.
 
 ## Out of Scope

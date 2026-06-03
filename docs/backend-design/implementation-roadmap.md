@@ -1,185 +1,160 @@
-﻿# 实施路线图
+# 后端实施路线图
 
-## Phase 0：分布式骨架
+本路线图以 [ADR-0014](../architecture-design/adr/0014-gateway-modular-monolith.md) 为当前事实来源：STDAS 当前采用 `stdas-gateway` 单一运行服务与强模块边界。服务拆分、NATS、Outbox/Inbox、MinIO、gRPC 和多进程部署是未来触发条件满足后的扩展方向，不是 Phase 0 必做项。
+
+本路线图不定义前端页面、路由、筛选、字段显示或产品设计细节。字段命名等你提供可读 MES 数据库后再校准。
+
+## Phase 0：Axum 单服务基线
 
 目标：
 
 - Rust workspace。
-- `stdas-gateway` health/readiness。
-- `identity-service`、`customer-service`、`workflow-service` 最小 gRPC 服务。
-- NATS JetStream 接入。
-- PostgreSQL schema/database 初始化。
-- MinIO/Object Storage 接入。
-- Redis 已在 Windows 本机安装；缓存能力必须按 [cache-strategy.md](cache-strategy.md) 先建立接口，再按需要接入 Redis adapter。
-- Outbox/Inbox 基础表和 publisher/consumer 框架。
-- 统一 tracing、request id、correlation id。
-- Windows / Linux 启停脚本。
+- `backend/services/stdas-gateway` 作为唯一 backend runtime service。
+- Axum app assembly、server、route catalog、CORS、config、state。
+- `system` health / preflight。
+- `modules/` 建立未来服务边界：
+  - `identity`
+  - `customer`
+  - `data_pipeline`
+  - `analytics`
+  - `evidence`
+  - `workflow`
+  - `integration`
+- 顶层横切边界：
+  - `telemetry`
+  - `audit`
+  - `middleware`
+  - `errors`
+  - `shared`
 
 验收：
 
-- `cargo fmt` 通过。
-- `cargo clippy` 通过。
-- `cargo test` 通过。
-- Rust 代码满足 [Rust 代码质量规则](rust-code-quality-rules.md)。
-- gateway health endpoint 可访问。
-- 所有服务能按配置启动并注册日志、metrics、health。
-- NATS publish/subscribe demo 通过。
-- 单节点 localhost 拓扑可运行。
-- Windows 本地开发不安装、不使用 Docker；NATS/MinIO/Redis 优先使用原生二进制或本地 adapter。
-- 前端包管理器统一使用 pnpm。
-- 只在进入代码实现阶段执行 build/test；当前 docs 阶段只记录该 gate。
+- `cargo fmt --check`
+- `cargo check`
+- `cargo test`
+- `cargo clippy --all-targets --all-features -- -D warnings`
+- `cargo run -p stdas-gateway -- routes`
+- health / preflight route 保持可访问。
+- 不引入 unused SQLx pool、Redis、NATS、MinIO、gRPC 或 fake business implementation。
 
-## Phase 0.5：环境验证 Gate
+## Phase 0.5：本地验证 Gate
 
-触发条件：前端设计和后端设计大体确定后，进入代码实现前。
-
-当前本机验证记录见 [phase-0-5-environment-validation.md](phase-0-5-environment-validation.md)。该记录显示本机工具链已具备，但正式项目级 build/test 需在 Phase 0 代码骨架创建后重新执行。
+当前本机验证记录见 [phase-0-5-environment-validation.md](phase-0-5-environment-validation.md)。
 
 目标：
 
-- 验证 Rust、前端工具链、包管理器和本地配置。
-- 验证 Rust 代码质量规则能通过 fmt、clippy、test 形成反馈闭环。
-- 验证 React + TypeScript + pnpm 前端工具链能通过 install、lint、typecheck、test、build 形成反馈闭环。
-- 验证 AI Agent 能捕获编译/测试错误。
-- 跑通写代码 -> 编译 -> 报错 -> 修复 -> 再验证闭环。
+- 验证 Rust toolchain、cargo alias 和最小后端命令可运行。
+- 验证代码质量规则能通过 fmt、check、test、clippy 形成反馈闭环。
+- 验证 AI Agent 能捕获编译/测试错误并修复。
+- 记录 Windows 本地开发不使用 Docker 的实际限制。
 
 验收：
 
-- 后端 `cargo check` 或等价命令可运行。
-- 后端测试命令可运行或明确待补齐。
-- 前端 `pnpm install`、lint、typecheck、test、build 可运行或明确待补齐。
+- 后端 `cargo check` 可运行。
+- 后端测试命令可运行。
 - 失败输出可被 AI Agent 读取。
 - 验证结果写入 docs 或开发记录。
 
-## Phase 1：Identity + Customer Specialization
+## Phase 1：字段语义与治理准备
+
+触发条件：用户提供可读 MES 数据库或真实字段资料。
 
 目标：
 
-- 工程师/管理员两类角色。
-- 登录、刷新、登出、当前用户。
-- CustomerScope。
-- 权限脱敏和数据隐藏策略。
-- CustomerConfig 基础表。
-- DataProfile 基础表和版本模型。
-- TestType、TestStation、EquipmentType、ProfileResolutionKey。
-- ParserProfile、MappingProfile、SpecProfile。
-- ParserRule、MappingRule、SpecRule。
-- 规则共享引用和复制分叉审计。
-- Feature flags。
-- `customer-service.ResolveDataProfile` gRPC API。
-- 审计日志事件。
+- 建立 `MES source field -> STDAS canonical field -> API field -> frontend display label -> evidence/lineage reference` 的字段治理流程。
+- 明确哪些字段来自 MES，哪些字段来自 test file，哪些字段由 STDAS normalization 生成。
+- 校准 `customer` module 中的 CustomerConfig、DataProfile、ProfileResolutionKey、rule binding 语义。
+- 不在 MES schema 审查前定死数据库字段、Rust field、API field 或 frontend label。
 
 验收：
 
-- 未登录访问返回 401。
-- 权限不足返回 403。
-- token refresh 可轮换。
-- token revocation、登录限流和 Options cache 通过接口实现；是否接 Redis 按 [cache-strategy.md](cache-strategy.md) 的触发条件决定。
-- DataProfile 可按版本查询。
-- ProfileResolutionKey 可解析到 parser/mapping/spec profile。
-- 无权限、hidden、masked、unauthorized 状态可区分。
-- gateway 不直接读取 identity/customer 数据库。
+- 每个关键字段都有 source、canonical、display、lineage 关系说明。
+- 临时字段不能沉淀为正式 schema。
+- 字段命名能贴合 MES 业务语义，同时不被历史字段名完全绑死。
 
-## Phase 2：Data Pipeline
+## Phase 2：真实样例文件接入准备
+
+触发条件：用户提供真实或代表性 FT test file。
 
 目标：
 
-- `data-pipeline-service` 文件登记。
-- Raw storage。
-- FileRegistered / FileStored / FileValidated 事件。
-- Parser registry。
-- ParserProfile 选择。
-- Staging 输出。
-- MappingProfile 归一。
-- Canonical TestData commit。
-- DataVersion 和 lineage。
+- 原始文件只进入 Git ignored 的本地目录。
+- 原始文件不得直接提交 Git。
+- 基于真实文件识别 metadata、文件 fingerprint、格式特征和敏感字段。
+- 制定脱敏 fixture 生成流程。
+- 在 `data_pipeline` module 内明确 file register、raw metadata、parser selection、normalization、DataVersion、lineage 的 ownership。
 
 验收：
 
-- 重复文件幂等。
-- 格式错误可诊断。
-- 客户/产品/测试类型/测试站点/设备 parser 可通过 profile 选择。
-- 主流程不直接写客户分支。
-- Parser 不直接写 analytics 或 integration 数据。
-- 所有结果记录 profile/parser/mapping/spec version。
+- raw file 不出现在 Git tracked changes。
+- 可说明真实文件中的 source field 与未来 canonical field 的关系。
+- 可从真实文件派生脱敏 fixture；fixture 才能进入项目测试。
+- 不凭空实现 parser，不伪装成已经支持真实格式。
 
-## Phase 3：Workflow
+## Phase 3：可信数据闭环后端主链路
 
 目标：
 
-- 作业状态。
-- queued、running、succeeded、failed、canceling、canceled、expired 生命周期。
-- Saga / Process Manager。
-- 超时、失败、重试、补偿。
-- Dead Letter 查询和重放。
-- 文件摄入到 DataVersionReady 的流程追踪。
+- 在 `stdas-gateway` 单服务内实现可信数据闭环的最小后端能力。
+- `customer` module 提供 DataProfile / rule resolution 的最小可验证边界。
+- `data_pipeline` module 提供 file register、parse/normalize 边界、DataVersion、lineage。
+- `evidence` module 提供 evidence view / citation 边界。
+- `analytics` module 只提供轻量 query / QuerySnapshot / result contract，不提前实现重 OLAP。
+- `audit` 记录关键业务动作。
 
 验收：
 
-- workflow 能追踪一个摄入作业的完整状态。
-- 任务状态包含时间、过期时间、request id、correlation id 和可诊断错误。
-- 任意步骤失败后可诊断、可重试、可进入 dead letter。
-- 重放事件不会造成重复入库。
+- 真实或脱敏样例文件能从登记走到 DataVersion。
+- 所有结果能说明使用的 source、profile/rule version、normalization version 和 evidence reference。
+- parser 不直接写 analytics 或 integration 数据。
+- analytics 不绕过 DataVersion / lineage / evidence。
+- handler 保持协议适配，不直接写 SQL 或承载业务流程。
 
-## Phase 4：Analytics
+## Phase 4：查询、分析与导出扩展
+
+触发条件：可信 DataVersion 和 evidence 基础已稳定。
 
 目标：
 
-- Lot 列表、Lot 详情、Summary/Bin 查询。
-- Yield/Bin/Retest。
-- Parametric 基础统计。
-- 分析能力 registry 和一组基础分析能力。
-- 查询预算。
-- QuerySnapshot 和 DataVersion 冻结。
-- Options API 基础能力。
-- 聚合表和缓存。
-- 如 Options、Overview 或热点分析结果有性能压力，按 [cache-strategy.md](cache-strategy.md) 接入 Redis。
-- Parquet/DuckDB 分析路径。
-- Overview 最小 KPI。
+- 扩展 `analytics` module 的 query、aggregation、analysis registry、result materialization。
+- 引入查询预算、QuerySnapshot、DataVersion 冻结和 evidence-aware result。
+- 按实际数据规模决定是否接入 Redis、DuckDB、Parquet 或 ClickHouse。
+- 大查询和导出根据压力进入 job 化。
 
 验收：
 
 - 查询必须带 scope。
 - 超预算请求被拒绝或转异步。
-- 图表返回点数受控。
-- 分析结果记录 query snapshot 和实际使用的 DataVersion 集合。
-- options 支持 loading 之外的 empty、permission denied、deprecated、hidden、unauthorized 状态。
-- 大导出通过事件和对象存储交付。
+- 分析结果记录 QuerySnapshot 和实际使用的 DataVersion 集合。
+- 大导出不阻塞普通 API。
 
-## Phase 5：Workspace + Alerting
+## Phase 5：服务拆分审查
+
+触发条件：ADR-0014 的黄色或红色信号持续出现。
 
 目标：
 
-- 分析会话。
-- workspace query snapshot。
-- 模板。
-- 案例。
-- Investigation Evidence 版本。
-- 告警规则、事件、确认。
-- AlertEvaluationRequested / AlertRaised 事件。
-- 异步导出。
+- 判断是继续 module、升级 crate，还是拆 runtime service。
+- 优先考虑 `module -> independent crate -> runtime service`。
+- 不因为文档里有未来服务名、目录名像服务、微服务更高级或 AI 建议而拆分。
 
 验收：
 
-- 告警可从规则生成事件。
-- 告警可跳转到分析上下文。
-- case/evidence 引用固化 QuerySnapshot，不静默重算。
-- 模板可复用并受 Profile 控制。
-- 告警评估失败可重试且幂等。
+- 有明确资源隔离、失败隔离、数据所有权、安全边界、独立部署、外部系统隔离或团队边界证据。
+- 先写新的 ADR，再改代码结构。
+- 拆分后仍保持 `stdas-gateway` 是唯一外部 API 入口。
 
-## Phase 6：Integration + 多节点演练
+## Future：外部集成与多服务运行
 
-目标：
+仅当真实需要出现后再引入：
 
-- MES 同步。
-- 客户接口或文件交换。
+- MES runtime connector。
+- gRPC service clients。
+- NATS JetStream。
+- Outbox/Inbox。
+- MinIO/S3 object storage。
 - 多节点配置演练。
-- ClickHouse PoC。
 - Windows Service / systemd 安装脚本。
+- ClickHouse PoC。
 
-验收：
-
-- 把任一服务迁移到另一台机器时，只需要改配置地址。
-- Integration 通过事件和 gRPC 协作，不直接读写其他服务数据库。
-- 参数明细可从 PostgreSQL 扫描路径迁出。
-- API contract 不因 backend 切换而变化。
+这些能力属于 future direction，不是当前 Phase 0 / Phase 1 的验收要求。

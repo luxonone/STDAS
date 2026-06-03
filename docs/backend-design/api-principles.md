@@ -1,5 +1,7 @@
 # API 契约原则
 
+当前阶段只有 `stdas-gateway` 一个后端运行服务。当前 minimal app 的实际 API 仍以 `/api/v1/system/*` 为准；本文的端点分组是后续扩展原则，不是已经批准的 frontend/product design 或完整 API contract。
+
 ## 基本原则
 
 - API 面向工作台任务，不按数据库表机械映射。
@@ -10,8 +12,8 @@
 - 大结果导出必须异步。
 - 查询响应必须可关联 query id、query hash 或 query snapshot，避免前端旧响应覆盖新状态。
 - 分享链接、导出下载和历史 workspace/case/export 打开时必须重新校验权限。
-- 前端只访问 `stdas-gateway`，不直接访问内部服务。
-- gateway 负责外部 REST 契约，内部服务优先暴露 gRPC 契约。
+- 前端只访问 `stdas-gateway`，不直接访问内部模块或未来内部服务。
+- gateway 负责外部 REST 契约；当前内部通过 Rust module API 协作，未来服务化后内部服务优先暴露 gRPC 契约。
 - 字段取值范围、默认值、编码约束、版本兼容规则见 [api-contract-rules.md](api-contract-rules.md)。
 
 ## 响应格式
@@ -53,11 +55,11 @@
 
 ## 端点组织
 
-端点按工作台任务和功能切片组织，不按前端导航机械照搬。下面是基线分组，具体接口必须说明被哪个页面族或外部集成使用。
+端点按工作台任务和功能切片组织，不按前端导航机械照搬。下面是候选分组，具体接口必须说明被哪个页面族或外部集成使用；在产品和前端设计重新确认前，不把这些分组当作当前必须实现的路由。
 
 ```text
 /api/v1/auth/*
-/api/v1/overview/*
+/api/v1/analysis/snapshots/*
 /api/v1/data/lots/*
 /api/v1/data/files/*
 /api/v1/data/versions/*
