@@ -65,7 +65,6 @@ frontend/web/src/
 │   ├── providers/
 │   └── shell/
 ├── pages/
-│   ├── overview/
 │   ├── data-explorer/
 │   ├── analysis-workspace/
 │   ├── alerts-investigation/

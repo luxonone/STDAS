@@ -56,6 +56,6 @@
 - 查询策略、缓存策略、作业策略应基于验证结果迭代。
 - 不得破坏架构设计中定义的能力域、数据范围和长期演进方向。
 - 重大方向变化需要先更新架构 ADR。
-- API 分组和契约必须对齐前端 [页面层级设计](../frontend-design/page-hierarchy-design.md) 与功能切片，但不能机械照搬前端组件。
-- 后端契约必须支撑前端 [UI/UX 约束](../frontend-design/ui-ux-constraints.md) 中的 P0 要求，包括 query snapshot、DataVersion 冻结、Options API、权限脱敏、任务生命周期和 evidence 版本。
+- API 分组和契约必须对齐前端功能切片和用户任务，但不能机械照搬前端组件或 AI 视觉稿。
+- 后端契约必须支撑前端 [UI/UX 通用护栏](../frontend-design/ui-ux-constraints.md) 中的 P0 要求，包括 query snapshot、DataVersion 冻结、Options API、权限脱敏、任务生命周期和 evidence 版本。
 - 后端 API 调整必须同步更新前端设计和 [前后端同步设计](../architecture-design/frontend-backend-sync-design.md)。

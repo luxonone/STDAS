@@ -36,16 +36,22 @@
 执行 `git add` 或 `git commit` 前，AI Agent 必须给出提交计划：
 
 ```text
-Commit 编号:
-Commit 类型: C### / D###
 Commit subject:
+Commit type/scope:
 包含文件:
 排除文件:
 验证命令:
 风险说明:
 ```
 
-如果工作区同时包含代码、文档、设计图片、依赖锁文件、移动文件和删除文件，AI Agent 必须拆分提交；不得为了省事使用 `git add .` 一次性提交全部。
+如果工作区同时包含代码、文档、设计图片、依赖锁文件、移动文件和删除文件，AI Agent 必须先按变更意图分组说明。提交拆分优先采用中大型项目常用的四个判断：
+
+- Atomic change：一个 commit 是否只表达一个可理解的行为、功能切片或维护动作。
+- Reviewability：reviewer 是否能在一个 diff 中看清原因、实现和影响范围。
+- Revertability：如果这个 commit 需要回退，是否会把仍然正确的无关工作一起回退。
+- Bisectability：每个 commit 落地后是否仍应保持可构建、可测试或至少不破坏主线诊断。
+
+属于同一功能切片且互相解释同一实现的 code、test、configuration、runtime assets 和 documentation changes 可以合并到一个 commit。无关草稿、生成物、不同功能、不同风险等级、不同回退生命周期的内容必须拆分提交。混合提交必须在提交计划和 commit body 中清楚标注 Code / Docs / Validation 范围；不得为了省事使用 `git add .` 一次性提交全部。
 
 ### 推送前门禁
 
@@ -90,7 +96,7 @@ flowchart TD
 
 ## 标准工作流
 
-每次让 AI Agent 生成或修改代码前，先建立可恢复边界：
+每次让 AI Agent 生成或修改代码前，先建立可恢复边界。多人协作时默认使用短生命周期 feature branch + Pull Request；只有维护者明确要求且仓库允许时，才直接推送到主分支。
 
 ```text
 1. 查看状态
@@ -267,17 +273,41 @@ git push --force-with-lease
 
 ## 提交规范
 
-STDAS 当前使用 changelog 中的本地编号约定：
+STDAS 新提交采用主流 Conventional Commits 风格：
 
-- `C###`：code 或 configuration change。
-- `D###`：documentation-only change。
-- `000`：baseline 或 import point。
+```text
+<type>(<scope>): <中文摘要，专有名词可用英文>
+```
+
+常用 type：
+
+- `feat`：新增用户可见能力或 API 能力。
+- `fix`：修复 bug 或行为回归。
+- `docs`：只修改文档。
+- `test`：只新增或调整测试。
+- `refactor`：不改变行为的代码结构调整。
+- `chore`：维护性改动，例如 ignore、脚本、仓库配置。
+- `build` / `ci`：构建系统或 CI 改动。
+- `revert`：回退已提交变更。
+
+拆分提交按变更意图，不机械按文件类型拆分。推荐做法：
+
+- 同一功能切片或行为变更所需的 code、test、configuration、runtime assets、documentation 可以合并提交。
+- 如果文档只是解释本次实现、记录契约或补验收，应随代码提交。
+- 如果文档是独立方向调整、长期策略或可以单独回退，应拆成独立 `docs(scope): ...` 提交。
+- 混合提交的 commit body 和 changelog 必须用 `Code:` / `Docs:` / `Validation:` 或等价结构标注范围。
+- 涉及破坏性变更时使用 `!` 或 `BREAKING CHANGE:` footer。
+- 历史 `C###` / `D###` 提交记录保持原样，后续不再把本地编号写入 commit subject。
+
+Changelog 采用 Keep a Changelog 结构：`[Unreleased]` 下按 `Added`、`Changed`、`Deprecated`、`Removed`、`Fixed`、`Security` 分类记录用户可见变化、接口变化、维护规则变化和迁移说明。Changelog 不逐条复制 commit 日志；commit history 和 PR 描述负责保存实现细节、Code / Docs / Validation 范围。
 
 推荐 commit subject：
 
 ```text
-C003 backend: rebaseline gateway on axum and sqlx
-D005 docs: add git github safety sop
+feat(auth): 打通登录页和最小会话链路
+docs(git): 采用 Conventional Commits 提交规范
+fix(api): 修正 auth/me 过期 token 错误码
+test(auth): 补充登录失败契约测试
 ```
 
 提交前检查：

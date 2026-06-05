@@ -1,20 +1,32 @@
 # Changelog
 
-本文件记录 Phase 0 preflight validation 期间的项目可见变更。内容保持简洁：实现细节保留在 code 中，设计依据保留在 `docs` 中。
+本文件记录 STDAS 的用户可见变化、接口变化、架构/维护规则变化和重要迁移说明。
 
-## Commit 编号
+未来 changelog 遵循 [Keep a Changelog](https://keepachangelog.com/) 的主流结构，并配合 [Conventional Commits](https://www.conventionalcommits.org/) 维护提交历史：
 
-commit 编号写入 commit subject。Git commit hash 基于内容生成，不应为了业务编号手动塑形。
+- 新变化先写入 `[Unreleased]`。
+- 每个版本按 `Added`、`Changed`、`Deprecated`、`Removed`、`Fixed`、`Security` 分类。
+- Changelog 记录“发生了什么”和“对使用者/维护者有什么影响”，不记录每个 commit 的流水账。
+- 提交说明和 PR 描述负责记录 Code / Docs / Validation 细节；changelog 只保留值得长期追踪的结果。
+- 历史 `C###` / `D###` 条目保留为 legacy 记录，后续不再新增本地编号条目。
 
-- `000`：repository baseline 或 import point。
-- `C###`：code 或 configuration change。
-- `D###`：documentation-only change。
+## [Unreleased]
 
-code/configuration commit 与 documentation commit 必须分离。这样回档更清晰：revert 生成代码时不应自动丢弃仍然准确的文档，更新文档时也不应把代码改动隐藏在同一个 commit 中。
+### Added
 
-该规则建立前已有的 commit 保持原样，避免重写本地历史。`001 review: align preflight project with best practices` 在 changelog 语义上视为 `C001`。
+- 新增登录页和最小会话链路：前端通过 `shared/api` typed client 调用 `POST /api/v1/auth/login`，保存本地 session，并在刷新时调用 `GET /api/v1/auth/me` 校验 token。
+- 新增 `identity` 模块的开发阶段最小 auth API。当前初始账号为 `admin / admin@123`；该账号和固定 token 只用于 Phase 0 登录链路验证，不代表生产认证设计。
+- 新增登录成功后的临时空白工作区，用于确认 auth 链路已经打通；正式登录后工程入口等待下一张页面设计稿确认。
 
-## Unreleased
+### Changed
+
+- Git/GitHub SOP 调整为主流多人协作口径：新提交采用 Conventional Commits；提交拆分按 atomic change、reviewability、revertability、bisectability 判断，不再使用本地 `C###` / `D###` 编号作为新 commit subject。
+- 文档入口、前后端同步设计、首批功能切片、API 契约和前端设计入口已对齐“身份、会话与授权上下文”最小落地范围。
+- 前端/产品文档状态改为“登录页与身份会话切片部分恢复”。固定 Overview、固定登录后 route 和 Data Explorer 默认入口不再作为当前事实来源。
+
+## Legacy Local-Numbered Entries
+
+以下历史条目保留原本本地编号格式，仅用于追溯早期 Phase 0 记录；未来不再新增同类编号条目。
 
 ### C004 - Backend App Layout
 

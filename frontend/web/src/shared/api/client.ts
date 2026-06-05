@@ -9,25 +9,46 @@ export type Fetcher = (
   init?: RequestInit
 ) => Promise<Response>;
 
+export interface RequestJsonOptions {
+  body?: unknown;
+  headers?: HeadersInit;
+  method?: string;
+  signal?: AbortSignal;
+  token?: string;
+}
+
 export async function requestJson<T>(
   path: string,
-  fetcher: Fetcher = fetch,
-  signal?: AbortSignal
+  options: RequestJsonOptions = {},
+  fetcher: Fetcher = fetch
 ): Promise<T> {
-  const response = await fetcher(path, {
-    headers: {
-      Accept: "application/json"
-    },
-    signal
-  });
+  const headers = new Headers(options.headers);
+  headers.set("Accept", "application/json");
 
-  if (!response.ok) {
-    throw new Error(`Request failed with HTTP ${response.status}`);
+  const init: RequestInit = {
+    headers,
+    method: options.method ?? "GET",
+    signal: options.signal
+  };
+
+  if (options.token) {
+    headers.set("Authorization", `Bearer ${options.token}`);
   }
+
+  if (options.body !== undefined) {
+    headers.set("Content-Type", "application/json");
+    init.body = JSON.stringify(options.body);
+  }
+
+  const response = await fetcher(path, init);
 
   const payload: unknown = await response.json();
   if (!isApiEnvelope(payload)) {
     throw new Error("Gateway returned an invalid response envelope");
+  }
+
+  if (!response.ok) {
+    throw new Error(payload.message || `Request failed with HTTP ${response.status}`);
   }
 
   if (payload.code !== 0) {
@@ -50,4 +71,3 @@ function isApiEnvelope(payload: unknown): payload is ApiEnvelope<unknown> {
     "data" in record
   );
 }
-

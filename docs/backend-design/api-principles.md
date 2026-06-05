@@ -1,6 +1,17 @@
 # API 契约原则
 
-当前阶段只有 `stdas-gateway` 一个后端运行服务。当前 minimal app 的实际 API 仍以 `/api/v1/system/*` 为准；本文的端点分组是后续扩展原则，不是已经批准的 frontend/product design 或完整 API contract。
+当前阶段只有 `stdas-gateway` 一个后端运行服务。当前 minimal app 已实现 `/api/v1/system/*` 与身份会话最小接口 `/api/v1/auth/login`、`/api/v1/auth/me`；其余端点分组是后续扩展原则，不是已经批准的 frontend/product design 或完整 API contract。
+
+## 当前已实现最小 API
+
+| 方法 | 端点 | 说明 |
+|------|------|------|
+| `GET` | `/api/v1/system/health` | Gateway 健康检查 |
+| `GET` | `/api/v1/system/preflight` | 本地或环境预检 |
+| `POST` | `/api/v1/auth/login` | 开发阶段最小登录；当前初始账号为 `admin / admin@123` |
+| `GET` | `/api/v1/auth/me` | Bearer token 校验和当前用户读取；当前只返回 username、display name |
+
+`/api/v1/auth/login` 和 `/api/v1/auth/me` 当前是 Phase 0 登录页联调用的开发契约，不代表完整生产认证设计。正式认证仍需补齐持久化用户、密码存储、token 生命周期、refresh/logout、权限、CustomerScope、审计和限流。
 
 ## 基本原则
 

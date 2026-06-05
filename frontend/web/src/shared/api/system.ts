@@ -11,8 +11,7 @@ export function readSystemHealth(
 ): Promise<SystemHealth> {
   return requestJson<SystemHealth>(
     "/api/v1/system/health",
-    fetcher ?? fetch,
-    signal
+    { signal },
+    fetcher ?? fetch
   );
 }
-

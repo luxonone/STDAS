@@ -48,10 +48,9 @@ AI Agent 的文档读取遵循 [AI Agent Startup Context SPEC](specs/agent-start
 | **AI Agent 运行规则** | [ai-agent-runtime-rules.md](architecture-design/ai-agent-runtime-rules.md) |
 | **AI 代码生成治理** | [ai-code-generation-governance.md](architecture-design/ai-code-generation-governance.md) |
 | **Git/GitHub 操作** | [git-github-sop.md](architecture-design/git-github-sop.md) |
-| **前端页面、路由、状态、组件** | [前端设计 README](frontend-design/README.md) → [frontend-tech-architecture.md](frontend-design/frontend-tech-architecture.md) + [frontend-code-quality-rules.md](frontend-design/frontend-code-quality-rules.md) + [frontend-ai-code-generation-rules.md](frontend-design/frontend-ai-code-generation-rules.md) |
-| **第一阶段全量页面设计** | [frontend-page-design-v1.md](frontend-design/frontend-page-design-v1.md) + [page-hierarchy-design.md](frontend-design/page-hierarchy-design.md) + [ui-ux-constraints.md](frontend-design/ui-ux-constraints.md) |
-| **UI/UX、响应式、表格、图表** | [ui-ux-constraints.md](frontend-design/ui-ux-constraints.md) + [workbench-design.md](frontend-design/workbench-design.md) |
-| **页面 mockup 生成** | [mockup-prompt-workflow.md](frontend-design/mockup-prompt-workflow.md) |
+| **前端代码架构、路由实现、状态、组件** | [前端设计 README](frontend-design/README.md) → [frontend-tech-architecture.md](frontend-design/frontend-tech-architecture.md) + [frontend-code-quality-rules.md](frontend-design/frontend-code-quality-rules.md) + [frontend-ai-code-generation-rules.md](frontend-design/frontend-ai-code-generation-rules.md) |
+| **UI/UX 通用护栏、响应式、表格、图表、表单** | [前端设计 README](frontend-design/README.md) → [ui-ux-constraints.md](frontend-design/ui-ux-constraints.md) |
+| **AI 页面视觉、prompt、mockup 生成** | [前端设计 README](frontend-design/README.md) → [mockup-prompt-workflow.md](frontend-design/mockup-prompt-workflow.md) + [ui-ux-constraints.md](frontend-design/ui-ux-constraints.md) |
 | **Rust 后端代码** | [后端设计 README](backend-design/README.md) → [Rust Coding Guidelines SPEC](specs/rust-coding-guidelines-spec.md) + [rust-code-quality-rules.md](backend-design/rust-code-quality-rules.md) + [rust-ai-code-generation-rules.md](backend-design/rust-ai-code-generation-rules.md)；非平凡实现还需 [rust-reference-projects-and-patterns.md](backend-design/rust-reference-projects-and-patterns.md) |
 | **API 字段、枚举、错误、分页** | [api-principles.md](backend-design/api-principles.md) + [api-contract-rules.md](backend-design/api-contract-rules.md) |
 | **数据版本、QuerySnapshot、Evidence** | [data-architecture.md](backend-design/data-architecture.md) + [analytics-engine.md](backend-design/analytics-engine.md) |
@@ -72,7 +71,7 @@ AI Agent 的文档读取遵循 [AI Agent Startup Context SPEC](specs/agent-start
 | SPEC | `specs/` | 项目铁律、启动规则、编码基线 | 最高稳定 | [specs/README.md](specs/README.md) |
 | 架构设计 | `architecture-design/` | 产品愿景、领域模型、系统架构、ADR | 高稳定 | [architecture-design/README.md](architecture-design/README.md) |
 | 领域知识 | `domain-knowledge/` | STDAS 背景、OSAT 场景、测试数据语义 | 高稳定 | [domain-knowledge/README.md](domain-knowledge/README.md) |
-| 前端设计 | `frontend-design/` | 页面、组件、交互、状态、可视化 | 高频演进 | [frontend-design/README.md](frontend-design/README.md) |
+| 前端设计 | `frontend-design/` | 前端代码架构、通用体验护栏、AI 设计协作流程 | 高频演进 | [frontend-design/README.md](frontend-design/README.md) |
 | 后端设计 | `backend-design/` | Rust workspace、数据平台、API | 高频演进 | [backend-design/README.md](backend-design/README.md) |
 | 验证记录 | `verification/` | Phase 0/0.5 环境验证截图和记录 | 辅助 | [phase-0-preflight.md](verification/phase-0-preflight.md) |
 
@@ -98,6 +97,8 @@ AI Agent 的文档读取遵循 [AI Agent Startup Context SPEC](specs/agent-start
 ## 当前状态
 
 当前文档定为 V1 架构和设计基线。后续停止泛化扩写，优先进入首批功能切片规格、Phase 0 代码骨架和 Phase 0.5 环境验证闭环。
+
+当前前端/产品设计的事实来源只恢复到已确认的登录页和“身份、会话与授权上下文”最小切片。登录成功后的正式工程入口仍等待下一张页面设计稿确认；当前实现只保留空白工作区占位，不定义固定 Overview、Dashboard 或 Data Explorer 默认路由。
 
 当前活跃后端 runtime 口径见 [ADR-0014](architecture-design/adr/0014-gateway-modular-monolith.md)：`stdas-gateway` 是第一阶段唯一 backend runtime service，内部采用 strong module boundary；多服务、NATS、Outbox/Inbox、MinIO 等能力为触发条件满足后的 future expansion，不作为 Phase 0 必需项。
 

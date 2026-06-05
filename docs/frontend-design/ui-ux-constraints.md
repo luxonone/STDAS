@@ -12,7 +12,7 @@
 | P1 | 允许灰度，但必须在当前或下一迭代补齐 | 状态恢复不完整、辅助说明不足、部分键盘访问缺口、低频状态缺少细节 |
 | P2 | 体验优化项 | 快捷入口优化、布局密度微调、低频说明优化、视觉层级细化 |
 
-每条页面级规则必须标记适用范围：Global Shell、Overview、Data Explorer、Analysis Workspace、Alerts & Investigation、Jobs & Exports、System Governance。
+每条页面级规则必须标记适用范围：Global Shell、Data Explorer、Analysis Workspace、Alerts & Investigation、Jobs & Exports、System Governance。
 
 ## 术语与状态定义
 
@@ -77,7 +77,6 @@
 
 | 页面族 | Required URL State | Session State | Forbidden URL State |
 |------|--------------------|---------------|---------------------|
-| Overview | customer、product、test_type、test_station、lot_end_time_range | 卡片展开、临时排序 | token、临时权限 |
 | Data Explorer | customer、product、test_type、test_station、lot_end_time_range、主筛选、分页、排序 | 大批量 Lot 选择、滚动位置 | 未授权客户/Lot 明文、未保存筛选草稿 |
 | Analysis Workspace | workspace id 或 query snapshot id、核心查询参数 | 未保存布局、临时刷选、草稿注释 | 超长 lot_scope、未保存表单、敏感字段明文 |
 | Alerts & Investigation | alert id、rule version、case id 或 trigger context 引用 | 临时筛选展开、局部排序 | 未授权告警摘要 |
@@ -102,7 +101,7 @@
 | permission denied | 页面、操作、数据 | 权限缺失类型 | 申请权限、切换客户 |
 | partial data | 图表、表格、导出 | 缺失范围、原因 | 缩小范围、转异步、重查 |
 | stale | KPI、图表、缓存结果 | 最近更新时间 | 刷新 |
-| snapshot | Overview、历史结果 | 快照时间、原始查询 | 使用快照、重新查询 |
+| snapshot | 历史结果、分析结果、Evidence、Export | 快照时间、原始查询 | 使用快照、重新查询 |
 | over budget | 查询、图表 | 超出预算项 | 聚合、采样、异步任务 |
 | async running | 分析、导出、摄入 | 任务阶段、进度、发起人 | 查看任务、取消 |
 
@@ -122,21 +121,9 @@
 
 ## 页面族约束
 
-### Overview
-
-| 约束 | 等级 | 规则 |
-|------|------|------|
-| FT 第一阶段 | P0 | Overview 默认面向 FT 测试系统；不展示 Wafer KPI 或 CP 主维度 |
-| 首屏内容 | P0 | 首屏必须展示 FT KPI、近期趋势、open alerts、risky lots 和快捷入口 |
-| 快捷入口 | P0 | 从 Overview 进入 Data Explorer、Alerts 或 Analysis Workspace 时必须携带筛选上下文 |
-| 业务时间 | P0 | KPI、趋势和列表必须优先显示 LotEndTime 范围、Snapshot Time 或缓存状态，不以 Updated 作为主时间 |
-| 异常优先 | P1 | 告警、风险批次、明显偏移指标的视觉权重高于普通统计说明 |
-| 降级状态 | P0 | Overview 可以展示最近成功快照，但必须标识 stale 或 snapshot |
-| 用户语义 | P0 | Overview 不显示 DataProfile、DataVersion policy、UserRole 选择器；不出现 Wafer Count 默认 KPI |
-
 ### Data Explorer
 
-Data Explorer 承担高密度数据对象浏览和多 Lot 分析入口。
+Data Explorer 承担高密度数据对象浏览和多 Lot 分析入口；是否作为登录后的正式工程入口必须等待后续页面设计确认。
 
 | 约束 | 等级 | 规则 |
 |------|------|------|
@@ -286,7 +273,7 @@ Analysis Workspace 是多 Lot、多参数、多图联动分析的核心容器。
 
 ## 图表细则
 
-适用范围：Overview、Analysis Workspace、Alerts & Investigation，以及任何包含可视化结果的页面。
+适用范围：Data Explorer、Analysis Workspace、Alerts & Investigation，以及任何包含可视化结果的页面。
 
 - 图表必须显示指标名称、单位、时间范围、数据口径、聚合粒度，并提供 QuerySnapshot 或 DataVersion 追溯引用；普通图表主标题优先显示业务维度，不把 DataVersion 当作主标签。
 - 坐标轴、图例、tooltip 必须能解释业务含义。
