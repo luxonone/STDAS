@@ -47,7 +47,7 @@ AI Agent 的文档读取遵循 [AI Agent Startup Context SPEC](specs/agent-start
 | **功能切片规划或验收** | [frontend-backend-sync-design.md](architecture-design/frontend-backend-sync-design.md) + [feature-slices-v1.md](architecture-design/feature-slices-v1.md) |
 | **AI Agent 运行规则** | [ai-agent-runtime-rules.md](architecture-design/ai-agent-runtime-rules.md) |
 | **AI 代码生成治理** | [ai-code-generation-governance.md](architecture-design/ai-code-generation-governance.md) |
-| **Git/GitHub 操作** | [git-github-sop.md](architecture-design/git-github-sop.md) |
+| **Git/GitHub/GitLab 提交、推送、PR/MR、合并、回退** | [Git Commit and Collaboration SPEC](specs/git-commit-collaboration-spec.md) + [git-github-sop.md](architecture-design/git-github-sop.md) |
 | **前端代码架构、路由实现、状态、组件** | [前端设计 README](frontend-design/README.md) → [frontend-tech-architecture.md](frontend-design/frontend-tech-architecture.md) + [frontend-code-quality-rules.md](frontend-design/frontend-code-quality-rules.md) + [frontend-ai-code-generation-rules.md](frontend-design/frontend-ai-code-generation-rules.md) |
 | **UI/UX 通用护栏、响应式、表格、图表、表单** | [前端设计 README](frontend-design/README.md) → [ui-ux-constraints.md](frontend-design/ui-ux-constraints.md) |
 | **AI 页面视觉、prompt、mockup 生成** | [前端设计 README](frontend-design/README.md) → [mockup-prompt-workflow.md](frontend-design/mockup-prompt-workflow.md) + [ui-ux-constraints.md](frontend-design/ui-ux-constraints.md) |
@@ -85,9 +85,10 @@ AI Agent 的文档读取遵循 [AI Agent Startup Context SPEC](specs/agent-start
 |------|------|
 | [SPEC 中心](specs/README.md) | 项目铁律、SPEC 和普通文档分区、SPEC 升级规则 |
 | [AI Agent Startup Context SPEC](specs/agent-startup-context-spec.md) | 上下文感知分层读取策略：冷启动/热延续/微调三级读取 gate |
+| [Git Commit and Collaboration SPEC](specs/git-commit-collaboration-spec.md) | Git 提交、推送、PR/MR、主分支合并和回退铁律 |
 | [AI Agent 运行时规则](architecture-design/ai-agent-runtime-rules.md) | AI Agent 修改文档或代码前的工作方式、上下文读取策略和交付检查 |
 | [AI 代码生成治理机制](architecture-design/ai-code-generation-governance.md) | AI 生成代码时的偏航提醒、替代方案、用户坚持原方案后的待优化标记机制 |
-| [Git / GitHub 安全 SOP](architecture-design/git-github-sop.md) | GitHub 绑定、提交、推送、AI 生成代码和安全回退流程 |
+| [Git / GitHub 安全 SOP](architecture-design/git-github-sop.md) | Git remote 绑定、提交、推送、PR/MR、AI 生成代码和安全回退流程 |
 | [前后端同步设计](architecture-design/frontend-backend-sync-design.md) | 前端和后端按功能切片同步设计、同步修改、同步验收 |
 | [首批功能切片 V1](architecture-design/feature-slices-v1.md) | 第一批端到端功能切片的页面、API、权限、数据语义和验收基线 |
 | [项目目录结构](project-structure.md) | monorepo 顶层目录、前端应用、后端服务、工具、文档边界和本地生成目录管理规则 |
@@ -113,7 +114,7 @@ AI Agent 的文档读取遵循 [AI Agent Startup Context SPEC](specs/agent-start
 - 前端和后端按功能切片同步推进；同一切片必须能追溯到页面、API、数据、权限、状态和验收。
 - 前后端文档不得反向修改架构原则；需要改变架构时先提交 ADR。
 - `docs/README.md` 只作为入口和路由中心，不承载详细设计。
-- 强制性规则优先放入 `docs/specs/`；普通文档只能引用 SPEC，不能复制或改写铁律正文。
+- 强制性规则优先放入 `docs/specs/`；普通文档只能引用 SPEC，不能复制或改写铁律正文。Git 提交、推送、PR/MR、主分支合并和回退必须遵守 [Git Commit and Collaboration SPEC](specs/git-commit-collaboration-spec.md)。
 - 新增或移动文档时，必须同步更新本入口、对应分区 README 和相关交叉引用。
 - 进入代码实现前必须完成环境验证 gate，确认 build/test 和 AI Agent 修复闭环可跑。
 - V1 baseline 之后新增规则必须服务于具体功能切片或代码实现，不再扩写泛化原则。

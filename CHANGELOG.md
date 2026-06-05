@@ -17,10 +17,12 @@
 - 新增登录页和最小会话链路：前端通过 `shared/api` typed client 调用 `POST /api/v1/auth/login`，保存本地 session，并在刷新时调用 `GET /api/v1/auth/me` 校验 token。
 - 新增 `identity` 模块的开发阶段最小 auth API。当前初始账号为 `admin / admin@123`；该账号和固定 token 只用于 Phase 0 登录链路验证，不代表生产认证设计。
 - 新增登录成功后的临时空白工作区，用于确认 auth 链路已经打通；正式登录后工程入口等待下一张页面设计稿确认。
+- 新增 Git Commit and Collaboration SPEC，固化提交、推送、PR/MR、主分支合并和回退的强制规则。
 
 ### Changed
 
 - Git/GitHub SOP 调整为主流多人协作口径：新提交采用 Conventional Commits；提交拆分按 atomic change、reviewability、revertability、bisectability 判断，不再使用本地 `C###` / `D###` 编号作为新 commit subject。
+- Git/GitHub SOP 补充“我要提交 git”场景的诊断输出、分支选择、直接推 main 例外、非 GitHub remote、PR/MR 生命周期、合并主分支条件和回退标准动作。
 - 文档入口、前后端同步设计、首批功能切片、API 契约和前端设计入口已对齐“身份、会话与授权上下文”最小落地范围。
 - 前端/产品文档状态改为“登录页与身份会话切片部分恢复”。固定 Overview、固定登录后 route 和 Data Explorer 默认入口不再作为当前事实来源。
 
