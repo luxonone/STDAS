@@ -61,6 +61,7 @@ Commit type/scope:
 包含文件:
 排除文件:
 验证命令:
+Changelog:
 风险说明:
 ```
 
@@ -235,7 +236,8 @@ PR/MR 描述必须包括：
 为什么改
 Code / Docs / Validation 范围
 风险和回退方式
-是否更新 changelog / SPEC / ADR
+是否更新根 / 前端 / 后端 changelog
+是否更新 SPEC / ADR
 ```
 
 ## 什么时候可以合并到 `main`
@@ -248,7 +250,7 @@ PR/MR 只有满足以下条件才推荐合并：
 4. 没有 merge conflict；若解决过冲突，解决后重新验证。
 5. 没有混入无关文件、生成目录、拒绝草稿或本地私有配置。
 6. 公开仓库敏感信息检查通过。
-7. changelog、SPEC、ADR、docs 入口和分区 README 已按影响范围同步。
+7. 根、前端、后端 changelog，以及 SPEC、ADR、docs 入口和分区 README 已按影响范围同步。
 8. reviewer 或维护者没有未解决的阻塞意见。
 
 合并方式按仓库策略选择：
@@ -464,7 +466,48 @@ STDAS 新提交采用主流 Conventional Commits 风格：
 - 涉及破坏性变更时使用 `!` 或 `BREAKING CHANGE:` footer。
 - 历史 `C###` / `D###` 提交记录保持原样，后续不再把本地编号写入 commit subject。
 
-Changelog 采用 Keep a Changelog 结构：`[Unreleased]` 下按 `Added`、`Changed`、`Deprecated`、`Removed`、`Fixed`、`Security` 分类记录用户可见变化、接口变化、维护规则变化和迁移说明。Changelog 不逐条复制 commit 日志；commit history 和 PR 描述负责保存实现细节、Code / Docs / Validation 范围。
+## Changelog 操作规则
+
+Changelog 采用 Keep a Changelog 结构：`[Unreleased]` 下按 `Added`、`Changed`、`Deprecated`、`Removed`、`Fixed`、`Security` 分类记录值得长期追踪的变化。Changelog 不逐条复制 commit 日志；commit history 和 PR 描述负责保存实现细节、Code / Docs / Validation 范围。
+
+STDAS 采用分层 changelog：
+
+| Changelog | 版本轨道 | 记录内容 |
+|-----------|----------|----------|
+| `CHANGELOG.md` | 仓库级，不作为前端/后端产品版本 | SPEC、ADR、Git/CI/发布流程、目录结构、跨前后端迁移 |
+| `frontend/web/CHANGELOG.md` | `frontend/web/package.json` | 前端页面、交互、前端 API client、状态、资源、前端构建和交付 |
+| `backend/services/stdas-gateway/CHANGELOG.md` | Cargo package version，当前来自根 `Cargo.toml` workspace version | 后端 API、错误契约、模块边界、运行时行为、后端配置和交付 |
+
+是否每个 commit 都写 changelog：不需要。主流做法是每个 PR/MR 或每组 release-relevant change 执行 changelog gate，而不是把 changelog 当 commit log。
+
+提交前必须判断：
+
+```text
+Changelog:
+- none：无用户/维护者/release note 价值
+- root：仓库级或跨端规则变化
+- frontend：前端组件变化
+- backend：后端组件变化
+- frontend + backend：端到端功能或契约变化
+- root + frontend + backend：跨端且修改发布/契约/SPEC/ADR
+```
+
+必须写 changelog 的情况：
+
+- 用户可见前端页面、交互、状态或资源变化。
+- 后端 API、错误码、认证、权限、数据语义或运行时行为变化。
+- 前后端契约同步、端到端功能切片或迁移。
+- SPEC、ADR、Git/CI/发布流程、目录结构、版本策略变化。
+- 安全、认证、授权、敏感信息处理、兼容性或破坏性变更。
+
+通常不写 changelog 的情况：
+
+- 纯测试内部重排，且不改变覆盖范围或验收口径。
+- typo、格式化、lint-only、注释微调。
+- 不影响用户、集成方或维护者的内部实现清理。
+- 未提交的临时脚本、截图、scratch 目录。
+
+发布组件版本时，只移动被发布组件的 `[Unreleased]` 到对应版本号。前端和后端可以一开始都是 `0.1.0`，后续只更新前端时只递增前端版本，只更新后端时只递增后端版本；另一端 changelog 和版本保持不变。
 
 推荐 commit subject：
 
