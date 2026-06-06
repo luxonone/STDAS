@@ -236,7 +236,7 @@ PR/MR 描述必须包括：
 为什么改
 Code / Docs / Validation 范围
 风险和回退方式
-是否更新根 / 前端 / 后端 changelog
+是否更新 CHANGELOG.md 的 Repository / Frontend Web / Backend Gateway 分区
 是否更新 SPEC / ADR
 ```
 
@@ -250,7 +250,7 @@ PR/MR 只有满足以下条件才推荐合并：
 4. 没有 merge conflict；若解决过冲突，解决后重新验证。
 5. 没有混入无关文件、生成目录、拒绝草稿或本地私有配置。
 6. 公开仓库敏感信息检查通过。
-7. 根、前端、后端 changelog，以及 SPEC、ADR、docs 入口和分区 README 已按影响范围同步。
+7. `CHANGELOG.md` 的 Repository、Frontend Web、Backend Gateway 分区，以及 SPEC、ADR、docs 入口和分区 README 已按影响范围同步。
 8. reviewer 或维护者没有未解决的阻塞意见。
 
 合并方式按仓库策略选择：
@@ -470,13 +470,13 @@ STDAS 新提交采用主流 Conventional Commits 风格：
 
 Changelog 采用 Keep a Changelog 结构：`[Unreleased]` 下按 `Added`、`Changed`、`Deprecated`、`Removed`、`Fixed`、`Security` 分类记录值得长期追踪的变化。Changelog 不逐条复制 commit 日志；commit history 和 PR 描述负责保存实现细节、Code / Docs / Validation 范围。
 
-STDAS 采用分层 changelog：
+STDAS 采用单一 changelog、组件分区：
 
-| Changelog | 版本轨道 | 记录内容 |
-|-----------|----------|----------|
-| `CHANGELOG.md` | 仓库级，不作为前端/后端产品版本 | SPEC、ADR、Git/CI/发布流程、目录结构、跨前后端迁移 |
-| `frontend/web/CHANGELOG.md` | `frontend/web/package.json` | 前端页面、交互、前端 API client、状态、资源、前端构建和交付 |
-| `backend/services/stdas-gateway/CHANGELOG.md` | Cargo package version，当前来自根 `Cargo.toml` workspace version | 后端 API、错误契约、模块边界、运行时行为、后端配置和交付 |
+| `CHANGELOG.md` 分区 | 版本轨道 | 记录内容 |
+|----------------------|----------|----------|
+| `Repository` | 仓库级，不作为前端/后端产品版本 | SPEC、ADR、Git/CI/发布流程、目录结构、跨前后端迁移 |
+| `Frontend Web` | `frontend/web/package.json` | 前端页面、交互、前端 API client、状态、资源、前端构建和交付 |
+| `Backend Gateway` | Cargo package version，当前来自根 `Cargo.toml` workspace version | 后端 API、错误契约、模块边界、运行时行为、后端配置和交付 |
 
 是否每个 commit 都写 changelog：不需要。主流做法是每个 PR/MR 或每组 release-relevant change 执行 changelog gate，而不是把 changelog 当 commit log。
 
@@ -485,11 +485,11 @@ STDAS 采用分层 changelog：
 ```text
 Changelog:
 - none：无用户/维护者/release note 价值
-- root：仓库级或跨端规则变化
-- frontend：前端组件变化
-- backend：后端组件变化
-- frontend + backend：端到端功能或契约变化
-- root + frontend + backend：跨端且修改发布/契约/SPEC/ADR
+- repository：更新 CHANGELOG.md 的 Repository 分区
+- frontend：更新 CHANGELOG.md 的 Frontend Web 分区
+- backend：更新 CHANGELOG.md 的 Backend Gateway 分区
+- frontend + backend：同一文件内同时更新 Frontend Web 和 Backend Gateway 分区
+- repository + frontend + backend：跨端且修改发布/契约/SPEC/ADR
 ```
 
 必须写 changelog 的情况：
@@ -507,7 +507,7 @@ Changelog:
 - 不影响用户、集成方或维护者的内部实现清理。
 - 未提交的临时脚本、截图、scratch 目录。
 
-发布组件版本时，只移动被发布组件的 `[Unreleased]` 到对应版本号。前端和后端可以一开始都是 `0.1.0`，后续只更新前端时只递增前端版本，只更新后端时只递增后端版本；另一端 changelog 和版本保持不变。
+发布组件版本时，只移动 `CHANGELOG.md` 中被发布组件分区的 `[Unreleased]` 内容到对应版本段落。前端和后端可以一开始都是 `0.1.0`，后续只更新前端时只递增前端版本，只更新后端时只递增后端版本；另一端 changelog 内容和版本保持不变。
 
 推荐 commit subject：
 

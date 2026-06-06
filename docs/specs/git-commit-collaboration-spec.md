@@ -132,21 +132,23 @@ BREAKING CHANGE: auth/me 不再返回旧字段 displayName。
 2. 每个 PR/MR 必须执行 changelog gate：判断本次变更是否有用户、维护者、集成方或发布说明价值。
 3. 有长期追踪价值的变化必须写入对应 changelog 的 `[Unreleased]`；无 release note 价值的内部改动可以不写。
 4. 使用 `Added`、`Changed`、`Deprecated`、`Removed`、`Fixed`、`Security` 分类。
-5. 根 [CHANGELOG](../../CHANGELOG.md) 只记录仓库级、跨前后端、SPEC、ADR、CI、目录结构、发布流程和迁移变化。
-6. 前端 [CHANGELOG](../../frontend/web/CHANGELOG.md) 记录 `frontend/web` 页面、交互、前端 API client、状态管理、前端资源、前端构建和前端交付变化。
-7. 后端 [CHANGELOG](../../backend/services/stdas-gateway/CHANGELOG.md) 记录 `stdas-gateway` API、错误契约、模块边界、后端行为、运行时配置和后端交付变化。
-8. 同一 PR/MR 同时影响前端和后端时，分别更新前端和后端 changelog；如果还改变跨端契约、SPEC、ADR 或发布流程，再更新根 changelog。
-9. 修改 Git 流程、SPEC、架构规则、API 契约、用户可见页面、数据语义、安全策略时必须写入对应 changelog。
+5. STDAS 使用单一根 [CHANGELOG](../../CHANGELOG.md)，不得为前端和后端默认拆出多个 changelog 文件。
+6. 根 changelog 内必须按 `Repository`、`Frontend Web`、`Backend Gateway` 分区记录不同项目的版本和更新日志。
+7. `Repository` 分区记录仓库级、跨前后端、SPEC、ADR、CI、目录结构、发布流程和迁移变化。
+8. `Frontend Web` 分区记录 `frontend/web` 页面、交互、前端 API client、状态管理、前端资源、前端构建和前端交付变化。
+9. `Backend Gateway` 分区记录 `stdas-gateway` API、错误契约、模块边界、后端行为、运行时配置和后端交付变化。
+10. 同一 PR/MR 同时影响前端和后端时，在同一个 `CHANGELOG.md` 中分别更新 Frontend Web 和 Backend Gateway 分区；如果还改变跨端契约、SPEC、ADR 或发布流程，再更新 Repository 分区。
+11. 修改 Git 流程、SPEC、架构规则、API 契约、用户可见页面、数据语义、安全策略时必须写入 `CHANGELOG.md` 的对应分区。
 
 ### Changelog gate
 
 | 变更类型 | 是否写 changelog | 写入位置 |
 |----------|------------------|----------|
-| 前端用户可见页面、交互、状态、前端 API client | 必须 | `frontend/web/CHANGELOG.md` |
-| 后端 API、错误码、认证、权限、数据语义、运行时行为 | 必须 | `backend/services/stdas-gateway/CHANGELOG.md` |
-| 前后端契约同步、端到端功能切片、跨端迁移 | 必须 | 前端 + 后端；必要时根 changelog |
-| SPEC、ADR、Git/CI/发布流程、目录结构 | 必须 | 根 `CHANGELOG.md` |
-| 安全修复、敏感信息处理、权限/认证变化 | 必须 | 受影响组件；跨端时根 changelog 也写 |
+| 前端用户可见页面、交互、状态、前端 API client | 必须 | `CHANGELOG.md` 的 `Frontend Web` 分区 |
+| 后端 API、错误码、认证、权限、数据语义、运行时行为 | 必须 | `CHANGELOG.md` 的 `Backend Gateway` 分区 |
+| 前后端契约同步、端到端功能切片、跨端迁移 | 必须 | `Frontend Web` + `Backend Gateway`；必要时 `Repository` |
+| SPEC、ADR、Git/CI/发布流程、目录结构 | 必须 | `CHANGELOG.md` 的 `Repository` 分区 |
+| 安全修复、敏感信息处理、权限/认证变化 | 必须 | 受影响组件分区；跨端时也写 `Repository` |
 | 纯测试重排、内部重命名、无行为变化的小 refactor | 通常不写 | 不写，除非影响维护者升级或排查 |
 | typo、格式化、lint-only、注释微调 | 不写 | 不写 |
 | 试验草稿、临时验证脚本、未提交生成物 | 不写 | 不写且不得混入提交 |
@@ -156,8 +158,8 @@ BREAKING CHANGE: auth/me 不再返回旧字段 displayName。
 - 前端版本轨道属于 `frontend/web`，当前版本以 `frontend/web/package.json` 为准。
 - 后端版本轨道属于 `stdas-gateway`，当前版本以 Cargo package version 为准；当前阶段由根 `Cargo.toml` 的 `workspace.package.version` 提供。
 - 前端和后端当前可以同为 `0.1.0`，但后续只更新其中一端时，只递增受影响组件版本。
-- 根仓库不作为产品版本轨道；根 `CHANGELOG.md` 不替代前端或后端 changelog。
-- 发布组件版本时，把该组件 changelog 的 `[Unreleased]` 移动到 `## [x.y.z] - YYYY-MM-DD`；未发布的另一端保持自己的 `[Unreleased]` 和版本不变。
+- 根仓库不作为产品版本轨道；根 `CHANGELOG.md` 是唯一 changelog 文件，但其中的 `Repository` 分区不替代 Frontend Web 或 Backend Gateway 分区。
+- 发布组件版本时，把 `[Unreleased]` 中对应组件分区的内容移动到新的版本段落；未发布的另一端保持自己的 `[Unreleased]` 内容和版本不变。
 - 如果后端后续需要独立于 workspace 版本演进，必须先把 `stdas-gateway` 改为 package-local version，并同步更新本 SPEC、后端 changelog 和发布脚本。
 
 ## 推送策略
