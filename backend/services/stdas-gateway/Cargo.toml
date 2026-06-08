@@ -8,10 +8,18 @@ readme = "README.md"
 publish = false
 
 [dependencies]
+async-trait = "0.1"
+argon2 = { version = "0.5", features = ["std"] }
 axum = "0.8.9"
+hex = "0.4"
+rand_core = { version = "0.6", features = ["getrandom"] }
 serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+sqlx = { version = "0.8", default-features = false, features = ["macros", "migrate", "postgres", "runtime-tokio-rustls"] }
+thiserror = "2"
 tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"] }
 tower-http = { version = "0.6.11", features = ["cors"] }
+uuid = { version = "1", features = ["v4"] }
 
 [dev-dependencies]
 serde_json = "1"

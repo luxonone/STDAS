@@ -23,6 +23,7 @@
 | [rust-ai-code-generation-rules.md](rust-ai-code-generation-rules.md) | AI 生成或修改 Rust 代码时的设计检查、偏航提醒和待优化标记规则 |
 | [rust-reference-projects-and-patterns.md](rust-reference-projects-and-patterns.md) | 高质量 Rust 项目参考、可借鉴模式和反照搬规则 |
 | [data-architecture.md](data-architecture.md) | 数据分层、PostgreSQL 定位、数据版本、参数数据演进 |
+| [identity-user-data-model.md](identity-user-data-model.md) | STDAS 用户、角色、用户角色和会话表设计；字段名参考 MES，表范围按测试部门内部场景裁剪 |
 | [cache-strategy.md](cache-strategy.md) | 缓存、Redis 使用策略、缓存接口、key 和失效规则 |
 | [ingestion-pipeline.md](ingestion-pipeline.md) | 摄入流水线、Parser 边界、幂等、文件安全 |
 | [analytics-engine.md](analytics-engine.md) | 分析查询类型、查询预算、缓存、OLAP backend |
@@ -41,6 +42,7 @@
 |----------|----------|
 | Rust 代码生成或修改 | [Rust Coding Guidelines SPEC](../specs/rust-coding-guidelines-spec.md) + [rust-code-quality-rules.md](rust-code-quality-rules.md) + [rust-ai-code-generation-rules.md](rust-ai-code-generation-rules.md)；非平凡实现还需 [rust-reference-projects-and-patterns.md](rust-reference-projects-and-patterns.md) |
 | API 契约、字段、枚举、错误、分页 | [api-principles.md](api-principles.md) + [api-contract-rules.md](api-contract-rules.md) |
+| 身份、用户表、角色和登录会话 | [identity-user-data-model.md](identity-user-data-model.md) + [api-principles.md](api-principles.md) + [security-reliability.md](security-reliability.md) |
 | 数据版本、QuerySnapshot、Evidence | [data-architecture.md](data-architecture.md) + [analytics-engine.md](analytics-engine.md) |
 | 摄入、Parser、文件安全 | [ingestion-pipeline.md](ingestion-pipeline.md) |
 | 缓存、Redis、查询预算 | [cache-strategy.md](cache-strategy.md) + [analytics-engine.md](analytics-engine.md) |
@@ -56,6 +58,6 @@
 - 查询策略、缓存策略、作业策略应基于验证结果迭代。
 - 不得破坏架构设计中定义的能力域、数据范围和长期演进方向。
 - 重大方向变化需要先更新架构 ADR。
-- API 分组和契约必须对齐前端 [页面层级设计](../frontend-design/page-hierarchy-design.md) 与功能切片，但不能机械照搬前端组件。
-- 后端契约必须支撑前端 [UI/UX 约束](../frontend-design/ui-ux-constraints.md) 中的 P0 要求，包括 query snapshot、DataVersion 冻结、Options API、权限脱敏、任务生命周期和 evidence 版本。
+- API 分组和契约必须对齐前端功能切片和用户任务，但不能机械照搬前端组件或 AI 视觉稿。
+- 后端契约必须支撑前端 [UI/UX 通用护栏](../frontend-design/ui-ux-constraints.md) 中的 P0 要求，包括 query snapshot、DataVersion 冻结、Options API、权限脱敏、任务生命周期和 evidence 版本。
 - 后端 API 调整必须同步更新前端设计和 [前后端同步设计](../architecture-design/frontend-backend-sync-design.md)。

@@ -21,6 +21,7 @@ SPEC 用来记录必须被 AI Agent、开发者和代码审查遵守的规则。
 |------|------|
 | [AI Agent Startup Context SPEC](agent-startup-context-spec.md) | 上下文感知分层读取策略：冷启动/热延续/微调三级读取 gate |
 | [Rust Coding Guidelines SPEC](rust-coding-guidelines-spec.md) | Rust 后端 coding baseline、外部 Rust 编码规范采用方式、Rust 修改验收 |
+| [Git Commit and Collaboration SPEC](git-commit-collaboration-spec.md) | Git 提交、推送、PR/MR、主分支合并和回退的强制规则 |
 
 ## 任务必读
 
@@ -28,6 +29,7 @@ SPEC 用来记录必须被 AI Agent、开发者和代码审查遵守的规则。
 |----------|----------|
 | 新会话、上下文读取、项目铁律 | [AI Agent Startup Context SPEC](agent-startup-context-spec.md) |
 | Rust 代码生成或修改 | [Rust Coding Guidelines SPEC](rust-coding-guidelines-spec.md) |
+| Git 提交、推送、PR/MR、合并、回退 | [Git Commit and Collaboration SPEC](git-commit-collaboration-spec.md) |
 
 ## SPEC 和普通文档的分区
 

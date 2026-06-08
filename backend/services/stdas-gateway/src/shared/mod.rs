@@ -5,4 +5,4 @@
 
 mod api;
 
-pub use api::ApiResponse;
+pub use api::{ApiErrorResponse, ApiResponse};

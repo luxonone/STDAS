@@ -1,20 +1,76 @@
-# Changelog
+# Repository Changelog
 
-本文件记录 Phase 0 preflight validation 期间的项目可见变更。内容保持简洁：实现细节保留在 code 中，设计依据保留在 `docs` 中。
+本文件记录 STDAS 仓库、前端工作台和后端 Gateway 的 notable changes。STDAS 使用单一 changelog，按组件分区记录不同项目的版本和更新日志。
 
-## Commit 编号
+当前版本轨道：
 
-commit 编号写入 commit subject。Git commit hash 基于内容生成，不应为了业务编号手动塑形。
+| 组件 | 当前版本来源 | 当前版本 | 说明 |
+|------|--------------|----------|------|
+| Repository | 不单独发布产品版本 | N/A | 记录 SPEC、ADR、Git/CI、目录结构、发布流程和跨端迁移 |
+| Frontend Web | `frontend/web/package.json` | `0.1.0` | 前端版本可独立递增 |
+| Backend Gateway | 根 `Cargo.toml` 的 `workspace.package.version` | `0.1.0` | 后端版本可独立递增；当前由 workspace 版本提供 |
 
-- `000`：repository baseline 或 import point。
-- `C###`：code 或 configuration change。
-- `D###`：documentation-only change。
+未来 changelog 遵循 [Keep a Changelog](https://keepachangelog.com/) 的主流结构，并配合 [Conventional Commits](https://www.conventionalcommits.org/) 维护提交历史：
 
-code/configuration commit 与 documentation commit 必须分离。这样回档更清晰：revert 生成代码时不应自动丢弃仍然准确的文档，更新文档时也不应把代码改动隐藏在同一个 commit 中。
+- 新变化先写入 `[Unreleased]`。
+- `[Unreleased]` 和版本段落内按 `Repository`、`Frontend Web`、`Backend Gateway` 分区；每个分区内部按 `Added`、`Changed`、`Deprecated`、`Removed`、`Fixed`、`Security` 分类。
+- Changelog 记录“发生了什么”和“对使用者/维护者有什么影响”，不记录每个 commit 的流水账；前端和后端版本可以相同，也可以后续只更新其中一端。
+- 提交说明和 PR 描述负责记录 Code / Docs / Validation 细节；changelog 只保留值得长期追踪的结果。
+- 历史 `C###` / `D###` 条目保留为 legacy 记录，后续不再新增本地编号条目。
 
-该规则建立前已有的 commit 保持原样，避免重写本地历史。`001 review: align preflight project with best practices` 在 changelog 语义上视为 `C001`。
+## [Unreleased]
 
-## Unreleased
+### Repository
+
+#### Added
+
+- 新增 Git Commit and Collaboration SPEC，固化提交、推送、PR/MR、主分支合并和回退的强制规则。
+
+#### Changed
+
+- Changelog 采用单文件维护方式，并在根 `CHANGELOG.md` 中按 Repository、Frontend Web、Backend Gateway 分区记录版本和更新日志。
+- Git/GitHub SOP 调整为主流多人协作口径：新提交采用 Conventional Commits；提交拆分按 atomic change、reviewability、revertability、bisectability 判断，不再使用本地 `C###` / `D###` 编号作为新 commit subject。
+- Git/GitHub SOP 补充“我要提交 git”场景的诊断输出、分支选择、直接推 main 例外、非 GitHub remote、PR/MR 生命周期、合并主分支条件和回退标准动作。
+- Git 提交流程补充 changelog gate：不要求每个 commit 都写 changelog，而是按 PR/变更意图判断是否更新 `CHANGELOG.md` 的对应组件分区。
+- 文档入口、前后端同步设计、首批功能切片、API 契约和前端设计入口已对齐“身份、会话与授权上下文”最小落地范围。
+- 前端/产品文档状态改为“登录页与身份会话切片部分恢复”。固定 Overview、固定登录后 route 和 Data Explorer 默认入口不再作为当前事实来源。
+
+### Frontend Web
+
+Current version: `0.1.0`
+
+#### Added
+
+- 新增登录页视觉实现、登录表单、错误状态、记住账号选项和登录页资源。
+- 新增前端 `shared/api` typed auth client，支持调用 `POST /api/v1/auth/login` 和 `GET /api/v1/auth/me`。
+- 新增本地 session 保存、刷新时 session 校验和无效 token 清理。
+- 新增登录成功后的临时空白工作区，用于确认 auth 链路已经打通；正式登录后工程入口等待下一张页面设计稿确认。
+- 新增 auth client 单元测试，覆盖登录成功、登录失败和 `auth/me` bearer token 传递。
+
+#### Changed
+
+- 前端 `AuthUser` 类型扩展为接收 `user_id`、`person_code`、`site_id` 和 `is_system_manager`，对齐后端 DB-backed 身份响应。
+
+### Backend Gateway
+
+Current version: `0.1.0`
+
+#### Added
+
+- 新增 `identity` 模块的 DB-backed 最小 auth API。
+- 新增 service-local SQLx migrations，落地 `c_users`、`c_roles`、`c_user_rl` 和 `r_user_session` 最小身份会话表。
+- 新增 `POST /api/v1/auth/login`，从 `c_users` 读取用户并校验 Argon2id password hash。
+- 新增 `GET /api/v1/auth/me`，通过 Bearer token hash 读取 `r_user_session` 和当前用户。
+- 新增 `seed-dev-admin` gateway 子命令，用环境变量初始化本地/部署数据库管理员，不在 migration 或代码中写入明文密码。
+- 新增 auth request tests，覆盖登录成功、登录失败和有效 token 读取当前用户。
+
+#### Security
+
+- 密码只保存 Argon2id PHC hash，access token 只保存 hash；当前仍需在后续切片补齐 refresh/logout、细粒度权限、CustomerScope、完整审计和限流。
+
+## Legacy Local-Numbered Entries
+
+以下历史条目保留原本本地编号格式，仅用于追溯早期 Phase 0 记录；未来不再新增同类编号条目。
 
 ### C004 - Backend App Layout
 

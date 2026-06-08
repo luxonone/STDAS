@@ -1,6 +1,7 @@
 pub mod app;
 pub(crate) mod audit;
 pub mod config;
+pub(crate) mod db;
 pub(crate) mod errors;
 pub(crate) mod middleware;
 pub(crate) mod modules;

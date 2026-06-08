@@ -8,6 +8,14 @@ pub struct RouteSpec {
 
 const ROUTES: &[RouteSpec] = &[
     RouteSpec {
+        method: "POST",
+        path: "/api/v1/auth/login",
+    },
+    RouteSpec {
+        method: "GET",
+        path: "/api/v1/auth/me",
+    },
+    RouteSpec {
         method: "GET",
         path: "/api/v1/system/health",
     },
@@ -31,6 +39,14 @@ mod tests {
         assert_eq!(
             route_specs(),
             &[
+                RouteSpec {
+                    method: "POST",
+                    path: "/api/v1/auth/login",
+                },
+                RouteSpec {
+                    method: "GET",
+                    path: "/api/v1/auth/me",
+                },
                 RouteSpec {
                     method: "GET",
                     path: "/api/v1/system/health",

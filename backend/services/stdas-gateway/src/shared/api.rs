@@ -22,3 +22,20 @@ where
         }
     }
 }
+
+#[derive(Debug, Serialize)]
+pub struct ApiErrorResponse {
+    code: i32,
+    message: &'static str,
+    data: Option<()>,
+}
+
+impl ApiErrorResponse {
+    pub fn new(code: i32, message: &'static str) -> Self {
+        Self {
+            code,
+            message,
+            data: None,
+        }
+    }
+}

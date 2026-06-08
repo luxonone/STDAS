@@ -1,5 +1,7 @@
 # 架构合理性审查
 
+本文是架构审查记录，主要约束 `stdas-gateway` modular monolith 和后端能力边界。前端/产品设计的当前有效范围以 [docs 入口](../README.md) 和 [前端设计 README](../frontend-design/README.md) 为准。
+
 ## 审查结论
 
 当前 STDAS 架构方向调整为：**Rust + Axum + SQLx、`stdas-gateway` 单一运行服务、强模块边界、服务拆分触发条件驱动**。
@@ -26,7 +28,7 @@
 | 2. build/test 是否可跑？ | 已可跑最小项目命令 | 当前 Rust workspace 和前端 workspace 已存在；后端最小路由已验证过 | 架构/代码变更后继续执行 cargo 验证 |
 | 3. API 契约是否严格？ | 框架已建立，具体契约待功能切片 | 当前不提前定义字段；MES schema 到位后再校准字段和 API | 功能切片设计时补端点级契约 |
 | 4. 是否跟着主流架构走？ | 基本符合 | Axum app assembly、handler/usecase/repository 分层、SQLx 显式 SQL、modular monolith 均是主流可维护方向 | 不照搬微服务复杂度，不创建 fake code |
-| 5. UI/UX 约束是否写明？ | 不在本轮处理 | 前端/产品设计内容在本轮作废，不写入本审查 | 等用户发起产品/前端设计再读取对应文档 |
+| 5. UI/UX 约束是否写明？ | 不在本轮处理 | 本审查不承载前端/产品事实来源 | 以 docs 入口和前端设计 README 的当前状态为准 |
 | 6. 任务是否小步可验证？ | 已重新收敛 | Phase 0 先验证 Axum 单服务与 module boundary，不把 NATS/MinIO/gRPC 作为当前验收 | roadmap 按 ADR-0014 调整 |
 
 ## 模块边界审查

@@ -92,9 +92,9 @@ pnpm build
 - 不再把前端源码和 Vite 配置直接放在仓库根目录。
 - `backend/` 只放 Rust 后端服务、后端共享 crate、后端基础设施库、后端工具和后端 contract。
 - `frontend/` 只放前端应用和前端相关源码。
-- 服务私有配置只在服务真正需要配置文件时放入服务目录；当前最小 `stdas-gateway` 只使用环境变量 `STDAS_GATEWAY_ADDR` 配置监听地址。
+- 服务私有配置只在服务真正需要配置文件时放入服务目录；当前最小 `stdas-gateway` 使用环境变量 `STDAS_GATEWAY_ADDR` 配置监听地址，并使用 `STDAS_DATABASE_URL` 配置 PostgreSQL。
 - Axum 服务使用 `src/app.rs` 作为 application assembly 边界；不得沿用 Loco/MVC 的 `src/controllers`、`src/http/*` 或 service-local `.cargo/config.toml` 作为默认结构；除非已有多个 binary，否则单服务 crate 使用 Cargo 默认 `src/main.rs`。
-- 当前 Gateway 是 single runtime modular monolith：`routes/` 管 API version router，业务能力放入 `modules/`，运维端点放入 `system/`，横切能力放入 `audit/`、`telemetry/`、`middleware/`、`errors/`、`shared/`。没有真实数据库用例时，不创建 repository/data access 实现，不引入 unused SQLx dependency。
+- 当前 Gateway 是 single runtime modular monolith：`routes/` 管 API version router，业务能力放入 `modules/`，运维端点放入 `system/`，横切能力放入 `audit/`、`telemetry/`、`middleware/`、`errors/`、`shared/`。身份会话已经是第一个真实数据库用例，因此 `stdas-gateway` 现在包含 `src/db/`、SQLx dependency 和 service-local `migrations/`。
 - 根目录只保留 workspace、文档、锁文件、repo-level scripts 和跨项目工具配置。
 - `docs/specs/` 是文档体系中的强约束专区，不按前端/后端实现目录拆分。
 - `docs/specs/vendor/` 只保存外部规范快照和来源说明，不放本项目实现源码，不把外部项目结构复制为 STDAS 架构。
@@ -144,4 +144,4 @@ backend/services/stdas-gateway/
 - `shared/` 只放稳定、低业务含义、跨模块确实共用的基础类型，不能成为垃圾桶。
 - `errors/` 是 typed error 和 API error mapping 边界。
 
-暂不创建 root-level `config/*.toml`、`migrations/`、`src/db/`、`src/cache/`、`src/extractors/` 或 `src/tasks/`。这些目录只有在出现真实 SQLx pool、Redis、认证 extractor、后台任务、配置文件或数据库迁移需求时才创建，避免为了“看起来完整”引入空目录和 unused dependency。
+暂不创建 root-level `config/*.toml`、`migrations/`、`src/db/`、`src/cache/`、`src/extractors/` 或 `src/tasks/`。数据库连接和 migration 是 `stdas-gateway` 的真实功能依赖，因此放在 `backend/services/stdas-gateway/src/db/` 和 `backend/services/stdas-gateway/migrations/`，不放到仓库根目录。

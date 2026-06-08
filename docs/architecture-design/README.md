@@ -10,7 +10,8 @@
 |------|------|
 | [SPEC 中心](../specs/README.md) | 项目铁律、SPEC 和普通文档分区、SPEC 升级规则 |
 | [AI Agent Startup Context SPEC](../specs/agent-startup-context-spec.md) | 上下文感知分层读取策略：冷启动/热延续/微调三级读取 gate |
-| [Rust Coding Guidelines SPEC](../specs/rust-coding-guidelines-spec.md) | Rust coding baseline | |
+| [Rust Coding Guidelines SPEC](../specs/rust-coding-guidelines-spec.md) | Rust coding baseline |
+| [Git Commit and Collaboration SPEC](../specs/git-commit-collaboration-spec.md) | Git 提交、推送、PR/MR、主分支合并和回退铁律 |
 
 ## 文档索引
 
@@ -22,7 +23,7 @@
 | [osat-multi-customer-architecture.md](osat-multi-customer-architecture.md) | OSAT 多客户客制化架构 |
 | [ai-agent-runtime-rules.md](ai-agent-runtime-rules.md) | AI Agent 修改文档或代码前的工作方式、上下文读取策略和交付检查 |
 | [ai-code-generation-governance.md](ai-code-generation-governance.md) | AI 代码生成、偏航提醒、替代方案和待优化标记的治理机制 |
-| [git-github-sop.md](git-github-sop.md) | Git/GitHub 绑定、提交、推送、AI 生成代码和安全回退 SOP |
+| [git-github-sop.md](git-github-sop.md) | Git remote 绑定、提交、推送、PR/MR、AI 生成代码和安全回退 SOP |
 | [frontend-backend-sync-design.md](frontend-backend-sync-design.md) | 前端、后端、数据、权限和验收按功能切片同步推进的设计规则 |
 | [feature-slices-v1.md](feature-slices-v1.md) | 首批功能切片交付卡和端点级契约索引 |
 | [architecture-review.md](architecture-review.md) | 架构合理性审查和六问检查结论 |
@@ -40,7 +41,7 @@
 | 功能切片规划或验收 | [frontend-backend-sync-design.md](frontend-backend-sync-design.md) + [feature-slices-v1.md](feature-slices-v1.md) |
 | AI Agent 运行规则和上下文读取 | [ai-agent-runtime-rules.md](ai-agent-runtime-rules.md) |
 | AI 代码生成偏航提醒和治理 | [ai-code-generation-governance.md](ai-code-generation-governance.md) |
-| Git/GitHub 操作 | [git-github-sop.md](git-github-sop.md) |
+| Git/GitHub/GitLab 操作、提交、推送、合并、回退 | [Git Commit and Collaboration SPEC](../specs/git-commit-collaboration-spec.md) + [git-github-sop.md](git-github-sop.md) |
 
 ## 变更原则
 

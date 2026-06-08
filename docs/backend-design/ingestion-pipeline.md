@@ -110,6 +110,10 @@ effective_time
 
 客户/测试类型/测试站点/设备专用 parser 可以存在，多个 DataProfile 也可以共享同一个 ParserRule。需要隔离变更时，可以从共享规则复制分叉出新的 ParserRule 独立维护。所有 parser 必须注册在 ParserRegistry 中，并由 DataProfile 选择。`modules/data_pipeline` 的主流程不直接引用客户专用 parser 类型；未来服务化后同样适用于 `data-pipeline-service`。
 
+导入入口的 parser 解析由业务上下文驱动。前端导入抽屉必须提供 `customer_code` 和 `equipment_type`/`tester`，`test_type`/`TestScope` 来自当前项目或页面上下文，而不是导入时临时选择的空字段。部分测试平台可能同时支持 CP 和 FT，但当前上下文为 `FT (Final Test)` 时，摄入链路必须拒绝 CP 数据包；需要导入 CP 数据时应先切换到对应上下文。
+
+ParserRule 可以声明允许的数据包 envelope，包括压缩包格式、扩展名、内部文件组合和必要元数据。示例：`AC` + `STS8200` + 当前 FT 上下文解析到 `AC-STS8200-FT` 规则时，可声明只接受 `.7z` 数据包。客户端文件选择器可以据此设置 accept 限制，但该限制不可信；后端必须基于 ProfileResolutionKey、扩展名、magic bytes、压缩包 envelope 和解析出的业务元数据做最终校验，发现文件类型或 TestScope 不匹配时拒绝导入。
+
 ## 幂等规则
 
 | 作业 | 幂等键 |

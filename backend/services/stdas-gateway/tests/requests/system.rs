@@ -6,9 +6,13 @@ use serde_json::Value;
 use stdas_gateway::{app::build_app, state::AppState};
 use tower::ServiceExt;
 
+fn test_state() -> AppState {
+    AppState::for_test_user("admin", "admin@123", "STDAS Administrator")
+}
+
 #[tokio::test]
 async fn health_endpoint_returns_success_envelope() -> Result<(), Box<dyn std::error::Error>> {
-    let response = build_app(AppState)
+    let response = build_app(test_state())
         .oneshot(
             Request::builder()
                 .uri("/api/v1/system/health")
@@ -30,7 +34,7 @@ async fn health_endpoint_returns_success_envelope() -> Result<(), Box<dyn std::e
 
 #[tokio::test]
 async fn preflight_endpoint_returns_contract_data() -> Result<(), Box<dyn std::error::Error>> {
-    let response = build_app(AppState)
+    let response = build_app(test_state())
         .oneshot(
             Request::builder()
                 .uri("/api/v1/system/preflight")
