@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BlankWorkspacePage } from "../pages/blank-workspace";
+import { DataExplorerPage } from "../pages/data-explorer";
 import { LoginPage } from "../pages/login";
 import { readCurrentUser, type LoginResult } from "../shared/api";
 import {
@@ -68,7 +68,7 @@ export function App() {
 
   if (sessionState.kind === "authenticated") {
     return (
-      <BlankWorkspacePage
+      <DataExplorerPage
         onSignOut={handleSignOut}
         session={sessionState.session}
       />

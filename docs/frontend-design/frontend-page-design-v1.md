@@ -1,6 +1,6 @@
 # 前端页面设计 V1
 
-本文记录 STDAS 第一阶段前端页面设计候选。当前只有登录页和身份会话最小链路已恢复为实现基线；登录后的正式工程入口、route、导航和页面族仍需用户确认下一张设计稿后再固化。
+本文记录 STDAS 第一阶段前端页面设计候选。当前已有登录页、身份会话最小链路和 Data Explorer / Lot List 首轮可评审实现基线；完整前端 route、导航页面族、详情页和分析工作区仍需后续设计稿确认后再固化。
 
 本文是前端页面事实来源，不替代后端 API 契约、数据架构、权限模型或架构 ADR。涉及 API 字段、错误码、查询预算、DataVersion、QuerySnapshot、Evidence、权限和 Job 状态机时，仍以对应后端文档为准。
 
@@ -187,7 +187,7 @@ STDAS Frontend
 | API | 已实现：`POST /api/v1/auth/login`、`GET /api/v1/auth/me`；后续：`POST /api/v1/auth/refresh` |
 | 验收 | 登录页不能泄露业务数据；不能像官网 hero；不能出现 post-login 表格或 KPI |
 
-当前实现说明：登录成功后进入临时空白工作区，用于验证 auth 链路；该占位页不是 AppShell 或 Data Explorer 的正式视觉基线。
+当前实现说明：登录成功后进入 Data Explorer / Lot List 首轮评审页，用于验证 AppShell 基础布局、筛选、表格、选择和导入抽屉的最小链路；完整路由、权限范围、options API、工作台和详情页仍等待后续切片。
 
 ### 5.2 App Shell / Current Context
 

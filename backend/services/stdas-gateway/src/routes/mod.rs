@@ -17,6 +17,10 @@ const ROUTES: &[RouteSpec] = &[
     },
     RouteSpec {
         method: "GET",
+        path: "/api/v1/data/lots",
+    },
+    RouteSpec {
+        method: "GET",
         path: "/api/v1/system/health",
     },
     RouteSpec {
@@ -46,6 +50,10 @@ mod tests {
                 RouteSpec {
                     method: "GET",
                     path: "/api/v1/auth/me",
+                },
+                RouteSpec {
+                    method: "GET",
+                    path: "/api/v1/data/lots",
                 },
                 RouteSpec {
                     method: "GET",

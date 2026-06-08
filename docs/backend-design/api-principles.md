@@ -1,6 +1,6 @@
 # API 契约原则
 
-当前阶段只有 `stdas-gateway` 一个后端运行服务。当前 minimal app 已实现 `/api/v1/system/*` 与身份会话最小接口 `/api/v1/auth/login`、`/api/v1/auth/me`；其余端点分组是后续扩展原则，不是已经批准的 frontend/product design 或完整 API contract。
+当前阶段只有 `stdas-gateway` 一个后端运行服务。当前 minimal app 已实现 `/api/v1/system/*`、身份会话最小接口 `/api/v1/auth/login`、`/api/v1/auth/me`，以及用于 Data Explorer 首轮评审的 `/api/v1/data/lots` 样例查询契约；其余端点分组是后续扩展原则，不是已经批准的 frontend/product design 或完整 API contract。
 
 ## 当前已实现最小 API
 
@@ -10,8 +10,11 @@
 | `GET` | `/api/v1/system/preflight` | 本地或环境预检 |
 | `POST` | `/api/v1/auth/login` | DB-backed 最小登录；用户读取自 `c_users`，密码校验 Argon2id hash |
 | `GET` | `/api/v1/auth/me` | Bearer token 校验和当前用户读取；token 读取自 `r_user_session` hash |
+| `GET` | `/api/v1/data/lots` | Data Explorer / Lot List 首轮评审契约；当前使用 FT 样例数据，支持认证、基础筛选和分页 |
 
 `/api/v1/auth/login` 和 `/api/v1/auth/me` 当前是 Phase 0 登录页联调用的最小身份契约。当前已使用 PostgreSQL 持久化 `c_users` 和 `r_user_session`，但 refresh/logout、细粒度 permissions、CustomerScope、完整审计和限流仍等待后续切片。用户表字段命名参考 MES 语义，表范围按 STDAS 测试部门内部场景裁剪，详见 [identity-user-data-model.md](identity-user-data-model.md)。
+
+`/api/v1/data/lots` 当前是 Phase 1 Data Explorer 页面评审用的最小查询契约，数据暂来自 `modules/data_pipeline` 内的 FT 样例集合，不代表最终持久化查询实现。该接口必须保留 Bearer token 校验，默认无筛选时返回空列表和表头可用状态；按 `cust`、`lot_no`、`test_step`、`tester`、`page`、`page_size` 查询时返回分页结果。当前上下文固定为 `FT (Final Test)`，样例数据不得混入 `CP1` 这类 CP 测试步骤。
 
 当前 `AuthUser` 返回字段：
 
