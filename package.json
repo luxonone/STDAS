@@ -19,6 +19,7 @@
     "web:lint": "pnpm --dir frontend/web lint",
     "web:test": "pnpm --dir frontend/web test",
     "gateway:start": "cargo run -p stdas-gateway",
-    "gateway:routes": "cargo run -p stdas-gateway -- routes"
+    "gateway:routes": "cargo run -p stdas-gateway -- routes",
+    "gateway:seed-dev-admin": "cargo run -p stdas-gateway -- seed-dev-admin"
   }
 }

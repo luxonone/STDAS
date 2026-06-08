@@ -6,8 +6,12 @@ export interface LoginCredentials {
 }
 
 export interface AuthUser {
+  user_id: string;
   username: string;
   display_name: string;
+  person_code: string;
+  site_id: string;
+  is_system_manager: boolean;
 }
 
 export interface LoginResult {

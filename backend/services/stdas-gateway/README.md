@@ -9,12 +9,14 @@
 ```text
 backend/services/stdas-gateway/
 ├── Cargo.toml
+├── migrations/
 ├── src/
 │   ├── main.rs
 │   ├── lib.rs
 │   ├── app.rs
 │   ├── audit/
 │   ├── config/
+│   ├── db/
 │   ├── errors/
 │   ├── middleware/
 │   ├── modules/
@@ -46,7 +48,8 @@ backend/services/stdas-gateway/
 - `audit/` 管横切审计边界。
 - `shared/` 只放稳定、低业务含义、跨模块确实共用的基础类型。
 - `errors/` 管 typed error 和 API error mapping。
-- `config/` 管应用配置结构；当前只读取环境变量 `STDAS_GATEWAY_ADDR`。
+- `config/` 管应用配置结构；当前读取 `STDAS_GATEWAY_ADDR` 和 `STDAS_DATABASE_URL`。
+- `db/` 管 PostgreSQL 连接池和 SQLx migration 入口。
 - `state.rs` 管 Axum shared state。
 - `telemetry/` 管 tracing、metrics、request id 等观测性边界。
 
@@ -67,13 +70,20 @@ modules/
 
 `customer` 不是普通客户 CRUD；它承载 CustomerConfig、DataProfile、ProfileResolutionKey、rule binding、feature flags 和 customer extension registry。
 
-## 暂不创建的目录
+## 当前持久化边界
 
-参考 Melrose《Rust + Axum 后端架构设计文档》时，只采用当前真实需要的结构。以下目录等真实功能出现后再创建：
+参考 Melrose《Rust + Axum 后端架构设计文档》时，只采用当前真实需要的结构。现在已经出现真实身份会话持久化，因此 `migrations/`、`src/db/` 和 SQLx dependency 已经启用。
+
+当前只落地 STDAS 测试部门内部需要的最小身份模型：
+
+- `c_users`：用户账号主表，字段名参考 MES `c_users` 语义。
+- `c_roles`：角色主表，只保留本系统需要的最小角色信息。
+- `c_user_rl`：用户与角色关联。
+- `r_user_session`：当前 access session，只保存 token hash。
+
+以下目录仍等真实功能出现后再创建：
 
 - `config/*.toml`
-- `migrations/`
-- `src/db/`
 - `src/cache/`
 - `src/extractors/`
 - `src/tasks/`
@@ -88,6 +98,17 @@ modules/
 ```bash
 cargo gateway
 cargo gateway-routes
+cargo gateway-seed-dev-admin
 cargo run -p stdas-gateway
 cargo run -p stdas-gateway -- routes
+cargo run -p stdas-gateway -- seed-dev-admin
 ```
+
+`seed-dev-admin` 用于创建或更新本地/部署数据库中的初始管理员。它只从环境变量读取密码，不把明文密码写入代码或 migration：
+
+```powershell
+$env:STDAS_BOOTSTRAP_ADMIN_PASSWORD = "<password>"
+cargo gateway-seed-dev-admin
+```
+
+可选环境变量：`STDAS_BOOTSTRAP_ADMIN_USERNAME`、`STDAS_BOOTSTRAP_ADMIN_DISPLAY_NAME`、`STDAS_BOOTSTRAP_ADMIN_PERSON_CODE`、`STDAS_BOOTSTRAP_ADMIN_SITE_ID`。

@@ -47,20 +47,26 @@ Current version: `0.1.0`
 - 新增登录成功后的临时空白工作区，用于确认 auth 链路已经打通；正式登录后工程入口等待下一张页面设计稿确认。
 - 新增 auth client 单元测试，覆盖登录成功、登录失败和 `auth/me` bearer token 传递。
 
+#### Changed
+
+- 前端 `AuthUser` 类型扩展为接收 `user_id`、`person_code`、`site_id` 和 `is_system_manager`，对齐后端 DB-backed 身份响应。
+
 ### Backend Gateway
 
 Current version: `0.1.0`
 
 #### Added
 
-- 新增 `identity` 模块的开发阶段最小 auth API。
-- 新增 `POST /api/v1/auth/login`，当前初始账号为 `admin / admin@123`，用于 Phase 0 登录链路验证。
-- 新增 `GET /api/v1/auth/me`，支持通过 `Bearer stdas-dev-admin-token` 读取当前开发阶段 admin 用户。
+- 新增 `identity` 模块的 DB-backed 最小 auth API。
+- 新增 service-local SQLx migrations，落地 `c_users`、`c_roles`、`c_user_rl` 和 `r_user_session` 最小身份会话表。
+- 新增 `POST /api/v1/auth/login`，从 `c_users` 读取用户并校验 Argon2id password hash。
+- 新增 `GET /api/v1/auth/me`，通过 Bearer token hash 读取 `r_user_session` 和当前用户。
+- 新增 `seed-dev-admin` gateway 子命令，用环境变量初始化本地/部署数据库管理员，不在 migration 或代码中写入明文密码。
 - 新增 auth request tests，覆盖登录成功、登录失败和有效 token 读取当前用户。
 
 #### Security
 
-- 当前固定账号和 token 只用于 Phase 0 开发联调，不代表生产认证设计；正式认证仍需补齐持久化用户、密码存储、token 生命周期、refresh/logout、权限、审计和限流。
+- 密码只保存 Argon2id PHC hash，access token 只保存 hash；当前仍需在后续切片补齐 refresh/logout、细粒度权限、CustomerScope、完整审计和限流。
 
 ## Legacy Local-Numbered Entries
 

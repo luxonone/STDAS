@@ -83,7 +83,7 @@ frontend/web
 
 | 进程 | 默认端口 | 对外协议 | 存储 |
 |------|------:|------|------|
-| `stdas-gateway` | 8080 | HTTPS / REST | 当前无持久化；后续按 SQLx + PostgreSQL 引入 |
+| `stdas-gateway` | 8080 | HTTPS / REST | PostgreSQL；当前已用于 `c_users`、`c_roles`、`c_user_rl`、`r_user_session` 最小身份会话模型 |
 
 未来服务化后才引入独立服务端口、gRPC、NATS 和对象存储：
 

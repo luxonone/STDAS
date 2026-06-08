@@ -217,6 +217,17 @@ STDAS Frontend
 | API | `GET /api/v1/data/lots`、options APIs、`POST /api/v1/analysis/workspaces` 或 workspace draft API |
 | 验收 | 不一次性渲染无限数据；不以 DataVersion 作为普通主列；不暴露 DataProfile 主控件 |
 
+#### 5.4.1 Lot 数据导入
+
+Lot 数据导入入口从 Lot List 的筛选区动作区进入，打开右侧导入抽屉。导入不是直接把文件行写入 Lot List，而是先根据当前业务上下文和用户输入解析数据包，通过 staging、校验和提交后，才进入列表查询结果。
+
+- `TestScope` 来自项目/页面加载后的当前上下文，导入抽屉中只作为只读约束显示；不存在导入时为空再选择 `TestScope` 的状态。
+- 导入前用户必须输入或选择 `Cust.` 和 `Tester`。系统用 `Cust.` + `Tester`/设备类型 + 当前 `TestScope` 解析匹配的数据解析规则。
+- 如果当前 `TestScope` 是 `FT (Final Test)`，即使某些测试机同时支持 CP 和 FT，也不能在该上下文导入 CP 数据；需要先切换项目/页面上下文后再导入。
+- 解析规则决定允许上传的数据包类型。示例：`AC` + `STS8200` + 当前 `FT` 上下文解析到 `AC-STS8200-FT` 规则时，只允许上传 `.7z` 压缩包。
+- 文件选择器可以按解析规则限制可选扩展名，但这只是前端辅助；用户强行选择不匹配文件时，导入校验必须失败并提示类型或上下文不匹配。
+- 客户测试数据通常不是单文件，导入交互应按压缩包/数据包设计，校验预览需要展示解析规则、允许包类型、当前 `TestScope` 约束和失败原因。
+
 ### 5.5 Lot Detail
 
 | 项 | 设计 |

@@ -81,7 +81,8 @@ stdas/
 | `middleware/` | Axum/Tower middleware |
 | `errors/` | typed error、API error mapping |
 | `shared/` | 稳定、低业务含义、跨模块确实共用的基础类型，例如 API envelope、ID newtype、pagination、time range、CustomerScope |
-| `config/` | 环境变量和服务配置；当前只读取 `STDAS_GATEWAY_ADDR` |
+| `config/` | 环境变量和服务配置；当前读取 `STDAS_GATEWAY_ADDR` 和 `STDAS_DATABASE_URL` |
+| `db/` | PostgreSQL connection pool 和 SQLx migration 入口；当前由身份会话切片使用 |
 
 `shared/` 禁止承载具体业务 use case、parser logic、DataProfile 发布逻辑、analytics query engine、repository implementation 或“不知道放哪里”的代码。
 
@@ -193,6 +194,6 @@ Rust 通用代码质量约束见 [rust-code-quality-rules.md](rust-code-quality-
 - `src/routes/` 管 API version router 和 route catalog。
 - 运维端点放 `src/system/`，业务端点放 owning module。
 - 每个 business module 内部按真实需要建立 handler、service/usecase、repository、DTO、model。
-- 当前没有真实数据库用例时，不创建 `db/`、`migrations/`，不引入 unused SQLx dependency。
+- 身份会话已经是当前真实数据库用例；`stdas-gateway` 允许包含 `src/db/`、service-local `migrations/` 和 SQLx dependency。
 - 当前没有 Redis、认证 extractor、后台任务或配置文件时，不创建 `cache/`、`extractors/`、`tasks/` 或 service-local `config/*.toml`。
-- 字段命名不能凭空设计；等 MES schema 可读后再校准 database field、Rust field、API field 和 frontend label。
+- 字段命名不能凭空设计；用户和权限相关字段优先参考 MES 语义，但表范围按 STDAS 测试部门内部系统裁剪。

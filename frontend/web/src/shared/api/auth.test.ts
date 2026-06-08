@@ -17,11 +17,15 @@ describe("auth api", () => {
         JSON.stringify({
           code: 0,
           data: {
-            access_token: "stdas-dev-admin-token",
+            access_token: "stdas-api-client-test-token",
             expires_in_seconds: 28800,
             token_type: "Bearer",
             user: {
               display_name: "STDAS Administrator",
+              is_system_manager: true,
+              person_code: "admin",
+              site_id: "STDAS",
+              user_id: "73d29518-9b9d-45c8-a84a-c8df19d9bbd7",
               username: "admin"
             }
           },
@@ -45,11 +49,15 @@ describe("auth api", () => {
         fetcher
       )
     ).resolves.toEqual({
-      access_token: "stdas-dev-admin-token",
+      access_token: "stdas-api-client-test-token",
       expires_in_seconds: 28800,
       token_type: "Bearer",
       user: {
         display_name: "STDAS Administrator",
+        is_system_manager: true,
+        person_code: "admin",
+        site_id: "STDAS",
+        user_id: "73d29518-9b9d-45c8-a84a-c8df19d9bbd7",
         username: "admin"
       }
     });
@@ -58,13 +66,17 @@ describe("auth api", () => {
   it("passes bearer token when reading the current user", async () => {
     const fetcher: Fetcher = async (_input, init) => {
       const headers = new Headers(init?.headers);
-      expect(headers.get("Authorization")).toBe("Bearer stdas-dev-admin-token");
+      expect(headers.get("Authorization")).toBe("Bearer stdas-api-client-test-token");
 
       return new Response(
         JSON.stringify({
           code: 0,
           data: {
             display_name: "STDAS Administrator",
+            is_system_manager: true,
+            person_code: "admin",
+            site_id: "STDAS",
+            user_id: "73d29518-9b9d-45c8-a84a-c8df19d9bbd7",
             username: "admin"
           },
           message: "success"
@@ -78,8 +90,12 @@ describe("auth api", () => {
       );
     };
 
-    await expect(readCurrentUser("stdas-dev-admin-token", fetcher)).resolves.toEqual({
+    await expect(readCurrentUser("stdas-api-client-test-token", fetcher)).resolves.toEqual({
       display_name: "STDAS Administrator",
+      is_system_manager: true,
+      person_code: "admin",
+      site_id: "STDAS",
+      user_id: "73d29518-9b9d-45c8-a84a-c8df19d9bbd7",
       username: "admin"
     });
   });

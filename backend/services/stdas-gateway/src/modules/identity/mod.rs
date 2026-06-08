@@ -7,6 +7,6 @@ mod dto;
 mod handlers;
 mod models;
 mod routes;
-mod service;
+pub(crate) mod service;
 
 pub(crate) use routes::router;

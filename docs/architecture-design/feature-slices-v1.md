@@ -26,7 +26,7 @@
 
 ### 当前落地状态
 
-该切片当前已完成 M1 最小主链路：登录页通过 `POST /api/v1/auth/login` 使用开发阶段初始账号 `admin / admin@123` 获取 Bearer token，前端保存本地 session，刷新时通过 `GET /api/v1/auth/me` 验证 token 并读取当前用户。登录成功后进入临时空白工作区，仅用于证明 auth 链路已经接通；正式登录后工程入口、AppShell、CustomerScope、permissions 和默认业务上下文仍等待后续设计与契约确认。
+该切片当前已完成 M1 最小主链路：登录页通过 `POST /api/v1/auth/login` 使用数据库中的 `c_users` 账号获取 Bearer token，前端保存本地 session，刷新时通过 `GET /api/v1/auth/me` 验证 `r_user_session` 中的 token hash 并读取当前用户。登录成功后进入临时空白工作区，仅用于证明 auth 链路已经接通；正式登录后工程入口、AppShell、CustomerScope、permissions 和默认业务上下文仍等待后续设计与契约确认。
 
 ### 用户目标
 
@@ -42,8 +42,8 @@
 
 | 方法 | 端点 | 状态 | 说明 |
 |------|------|------|------|
-| `POST` | `/api/v1/auth/login` | 已实现最小开发契约 | 登录；当前仅支持 `admin / admin@123` 开发账号 |
-| `GET` | `/api/v1/auth/me` | 已实现最小开发契约 | 当前用户；当前仅返回 username 和 display name |
+| `POST` | `/api/v1/auth/login` | 已实现最小开发契约 | 登录；读取 `c_users`，校验 Argon2id hash |
+| `GET` | `/api/v1/auth/me` | 已实现最小开发契约 | 当前用户；返回 `user_id`、`username`、`display_name`、`person_code`、`site_id`、`is_system_manager` |
 | `POST` | `/api/v1/auth/refresh` | 后续契约 | 刷新 access token |
 | `POST` | `/api/v1/auth/logout` | 后续契约 | 登出并让服务端会话失效 |
 | `GET` | `/api/v1/options/customers` | 后续契约 | 当前用户可见客户选项 |
@@ -58,7 +58,7 @@
 
 ### 当前验收
 
-- 使用 `admin / admin@123` 登录成功后进入临时空白工作区。
+- 使用 `seed-dev-admin` 初始化的本地管理员登录成功后进入临时空白工作区。
 - 密码错误时返回稳定错误信封，前端展示失败状态。
 - 刷新已有 session 时，前端调用 `auth/me` 校验 token；token 无效则清理本地 session 并回到登录页。
 

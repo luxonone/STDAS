@@ -1,3 +1,4 @@
 [alias]
 gateway = "run -p stdas-gateway --"
 gateway-routes = "run -p stdas-gateway -- routes"
+gateway-seed-dev-admin = "run -p stdas-gateway -- seed-dev-admin"

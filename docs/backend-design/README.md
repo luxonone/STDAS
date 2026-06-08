@@ -23,6 +23,7 @@
 | [rust-ai-code-generation-rules.md](rust-ai-code-generation-rules.md) | AI 生成或修改 Rust 代码时的设计检查、偏航提醒和待优化标记规则 |
 | [rust-reference-projects-and-patterns.md](rust-reference-projects-and-patterns.md) | 高质量 Rust 项目参考、可借鉴模式和反照搬规则 |
 | [data-architecture.md](data-architecture.md) | 数据分层、PostgreSQL 定位、数据版本、参数数据演进 |
+| [identity-user-data-model.md](identity-user-data-model.md) | STDAS 用户、角色、用户角色和会话表设计；字段名参考 MES，表范围按测试部门内部场景裁剪 |
 | [cache-strategy.md](cache-strategy.md) | 缓存、Redis 使用策略、缓存接口、key 和失效规则 |
 | [ingestion-pipeline.md](ingestion-pipeline.md) | 摄入流水线、Parser 边界、幂等、文件安全 |
 | [analytics-engine.md](analytics-engine.md) | 分析查询类型、查询预算、缓存、OLAP backend |
@@ -41,6 +42,7 @@
 |----------|----------|
 | Rust 代码生成或修改 | [Rust Coding Guidelines SPEC](../specs/rust-coding-guidelines-spec.md) + [rust-code-quality-rules.md](rust-code-quality-rules.md) + [rust-ai-code-generation-rules.md](rust-ai-code-generation-rules.md)；非平凡实现还需 [rust-reference-projects-and-patterns.md](rust-reference-projects-and-patterns.md) |
 | API 契约、字段、枚举、错误、分页 | [api-principles.md](api-principles.md) + [api-contract-rules.md](api-contract-rules.md) |
+| 身份、用户表、角色和登录会话 | [identity-user-data-model.md](identity-user-data-model.md) + [api-principles.md](api-principles.md) + [security-reliability.md](security-reliability.md) |
 | 数据版本、QuerySnapshot、Evidence | [data-architecture.md](data-architecture.md) + [analytics-engine.md](analytics-engine.md) |
 | 摄入、Parser、文件安全 | [ingestion-pipeline.md](ingestion-pipeline.md) |
 | 缓存、Redis、查询预算 | [cache-strategy.md](cache-strategy.md) + [analytics-engine.md](analytics-engine.md) |

@@ -4,10 +4,12 @@ use stdas_gateway::{config::AppConfig, server};
 async fn main() -> std::io::Result<()> {
     let config = AppConfig::from_env();
 
-    if std::env::args().nth(1).as_deref() == Some("routes") {
-        server::print_routes();
-        Ok(())
-    } else {
-        server::serve(config).await
+    match std::env::args().nth(1).as_deref() {
+        Some("routes") => {
+            server::print_routes();
+            Ok(())
+        }
+        Some("seed-dev-admin") => server::seed_dev_admin(config).await,
+        _ => server::serve(config).await,
     }
 }

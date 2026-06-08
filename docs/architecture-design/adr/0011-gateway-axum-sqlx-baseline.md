@@ -56,8 +56,8 @@ src/
 - `src/main.rs` 是单 binary crate 的 Cargo 默认入口，只解析进程级命令并调用 server。
 - `src/app.rs` 是 Axum application assembly 边界，只组装 `Router`、route tree、middleware 和 shared state。
 - `src/server.rs` 负责监听地址、`TcpListener` 和 `axum::serve`。
-- `src/config/` 负责环境变量和服务配置；当前只包含 `STDAS_GATEWAY_ADDR`。
-- `src/state.rs` 是 Axum shared state 边界；当前挂载最小 `SystemService`，未来可挂载 module usecase、service client 或 SQLx pool。
+- `src/config/` 负责环境变量和服务配置；当前包含 `STDAS_GATEWAY_ADDR` 和 `STDAS_DATABASE_URL`。
+- `src/state.rs` 是 Axum shared state 边界；当前挂载 identity service，后续可继续挂载 module usecase、service client 或 SQLx pool。
 - `src/routes/` 负责 route catalog 和 API version router。
 - `src/middleware/` 放 Tower middleware；当前 CORS 使用本地前端 origin 白名单，不使用 wildcard 作为默认基线。
 - `src/modules/` 放未来可能升级为 crate 或 runtime service 的业务边界；每个 module 内部再按真实需要放 handler、service/usecase、repository、DTO 和 model。
@@ -67,7 +67,7 @@ src/
 - `src/errors/` 放 typed error 和 API error mapping。
 - `src/telemetry/` 放 tracing、metrics、request id 等观测性边界；当前只保留归属边界。
 
-当前不创建空的 `db/`、`cache/`、`extractors/`、`tasks/`、service-local `config/*.toml` 或 `migrations/`。这些目录只有在出现真实 SQLx pool、Redis、认证 extractor、后台任务、配置文件或数据库迁移需求时才创建。
+当前不创建空的 `cache/`、`extractors/`、`tasks/` 或 service-local `config/*.toml`。`db/` 和 `migrations/` 已由身份会话切片触发为真实 SQLx/PostgreSQL 用例，因此允许存在；未来新增目录仍必须由真实功能触发。
 
 其中 SQLx pool、transaction、migration 调用和 repository 实现位于拥有该数据的 module 内部 repository/data access 边界，handler 不直接写 SQL。
 

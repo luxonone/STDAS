@@ -8,10 +8,21 @@
 |------|------|------|
 | `GET` | `/api/v1/system/health` | Gateway 健康检查 |
 | `GET` | `/api/v1/system/preflight` | 本地或环境预检 |
-| `POST` | `/api/v1/auth/login` | 开发阶段最小登录；当前初始账号为 `admin / admin@123` |
-| `GET` | `/api/v1/auth/me` | Bearer token 校验和当前用户读取；当前只返回 username、display name |
+| `POST` | `/api/v1/auth/login` | DB-backed 最小登录；用户读取自 `c_users`，密码校验 Argon2id hash |
+| `GET` | `/api/v1/auth/me` | Bearer token 校验和当前用户读取；token 读取自 `r_user_session` hash |
 
-`/api/v1/auth/login` 和 `/api/v1/auth/me` 当前是 Phase 0 登录页联调用的开发契约，不代表完整生产认证设计。正式认证仍需补齐持久化用户、密码存储、token 生命周期、refresh/logout、权限、CustomerScope、审计和限流。
+`/api/v1/auth/login` 和 `/api/v1/auth/me` 当前是 Phase 0 登录页联调用的最小身份契约。当前已使用 PostgreSQL 持久化 `c_users` 和 `r_user_session`，但 refresh/logout、细粒度 permissions、CustomerScope、完整审计和限流仍等待后续切片。用户表字段命名参考 MES 语义，表范围按 STDAS 测试部门内部场景裁剪，详见 [identity-user-data-model.md](identity-user-data-model.md)。
+
+当前 `AuthUser` 返回字段：
+
+| 字段 | 说明 |
+|------|------|
+| `user_id` | `c_users.id` |
+| `username` | `c_users.username` |
+| `display_name` | 优先取 `c_users.fname`，为空时回退到 `username` |
+| `person_code` | `c_users.person_code` |
+| `site_id` | `c_users.site_id` |
+| `is_system_manager` | `c_users.is_system_manager = 'Y'` |
 
 ## 基本原则
 

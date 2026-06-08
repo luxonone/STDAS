@@ -8,24 +8,32 @@ pub struct LoginRequest {
     pub password: String,
 }
 
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct UserResponse {
-    username: &'static str,
-    display_name: &'static str,
+    user_id: String,
+    username: String,
+    display_name: String,
+    person_code: String,
+    site_id: String,
+    is_system_manager: bool,
 }
 
 impl From<AuthenticatedUser> for UserResponse {
     fn from(user: AuthenticatedUser) -> Self {
         Self {
+            user_id: user.user_id,
             username: user.username,
             display_name: user.display_name,
+            person_code: user.person_code,
+            site_id: user.site_id,
+            is_system_manager: user.is_system_manager,
         }
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct LoginResponse {
-    access_token: &'static str,
+    access_token: String,
     token_type: &'static str,
     expires_in_seconds: u32,
     user: UserResponse,
