@@ -11,4 +11,3 @@ AGENTS.md
 .swarm/
 reference-project/
 docs/frontend-design-err/
-backend/services/stdas-gateway/.local/

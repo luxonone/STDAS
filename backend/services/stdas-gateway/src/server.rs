@@ -30,7 +30,7 @@ pub async fn serve(config: AppConfig) -> std::io::Result<()> {
     let listener = TcpListener::bind(&config.bind_addr).await?;
     let state = AppState::from_config(&config)
         .await
-        .map_err(|error| std::io::Error::new(std::io::ErrorKind::Other, error))?;
+        .map_err(std::io::Error::other)?;
 
     println!("stdas-gateway listening on http://{}", config.bind_addr);
 
@@ -38,13 +38,11 @@ pub async fn serve(config: AppConfig) -> std::io::Result<()> {
 }
 
 pub async fn seed_dev_admin(config: AppConfig) -> std::io::Result<()> {
-    seed_dev_admin_inner(config)
-        .await
-        .map_err(|error| io::Error::new(io::ErrorKind::Other, error))
+    seed_dev_admin_inner(config).await.map_err(io::Error::other)
 }
 
 async fn seed_dev_admin_inner(config: AppConfig) -> Result<(), SeedDevAdminError> {
-    let admin = BootstrapAdmin::from_env()?;
+    let admin = bootstrap_admin_from_env_or_prompt()?;
     let pool = crate::db::connect(&config.database_url).await?;
     crate::db::run_migrations(&pool).await?;
     let repository = PgIdentityRepository::new(pool);
@@ -53,6 +51,26 @@ async fn seed_dev_admin_inner(config: AppConfig) -> Result<(), SeedDevAdminError
     println!("stdas-gateway bootstrap admin is ready");
 
     Ok(())
+}
+
+fn bootstrap_admin_from_env_or_prompt() -> Result<BootstrapAdmin, SeedDevAdminError> {
+    match BootstrapAdmin::from_env() {
+        Ok(admin) => Ok(admin),
+        Err(BootstrapAdminError::MissingPassword) => {
+            println!("STDAS_BOOTSTRAP_ADMIN_PASSWORD is not set.");
+            let password = prompt_password("Bootstrap admin password: ")?;
+            let confirm = prompt_password("Confirm bootstrap admin password: ")?;
+            if password != confirm {
+                return Err(SeedDevAdminError::PasswordConfirmationMismatch);
+            }
+
+            Ok(BootstrapAdmin::from_env_with_password(password)?)
+        }
+    }
+}
+
+fn prompt_password(prompt: &str) -> Result<String, SeedDevAdminError> {
+    rpassword::prompt_password(prompt).map_err(SeedDevAdminError::PasswordPrompt)
 }
 
 #[derive(Debug, Error)]
@@ -65,4 +83,8 @@ enum SeedDevAdminError {
     Migration(#[from] sqlx::migrate::MigrateError),
     #[error("identity seed failed")]
     Identity(#[from] IdentityRepositoryError),
+    #[error("bootstrap admin password input failed")]
+    PasswordPrompt(#[source] io::Error),
+    #[error("bootstrap admin password confirmation did not match")]
+    PasswordConfirmationMismatch,
 }

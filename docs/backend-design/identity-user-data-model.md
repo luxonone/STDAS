@@ -116,19 +116,12 @@ erDiagram
 本地或部署数据库初始化管理员使用：
 
 ```powershell
-New-Item -ItemType Directory -Force backend/services/stdas-gateway/.local
-Set-Content -NoNewline -Path backend/services/stdas-gateway/.local/bootstrap-admin-password -Value "<password>"
 cargo gateway-seed-dev-admin
 ```
 
-也可以显式指定 ignored 的本地密码文件：
+默认流程会在终端交互式输入并确认密码；系统只把 Argon2id hash 写入 `c_users.passwd`，不保留明文密码文件。
 
-```powershell
-$env:STDAS_BOOTSTRAP_ADMIN_PASSWORD_FILE = "D:\local\stdas-admin-password"
-cargo gateway-seed-dev-admin
-```
-
-环境变量密码仍保留给临时或 CI 场景：
+环境变量密码只保留给临时自动化或 CI 场景：
 
 ```powershell
 $env:STDAS_BOOTSTRAP_ADMIN_PASSWORD = "<password>"
@@ -144,4 +137,4 @@ $env:STDAS_BOOTSTRAP_ADMIN_PERSON_CODE = "admin"
 $env:STDAS_BOOTSTRAP_ADMIN_SITE_ID = "STDAS"
 ```
 
-初始化命令会先执行 migration，再 upsert `c_users`、`c_roles` 和 `c_user_rl`。密码不会写入 migration、代码或日志。
+初始化命令会先执行 migration，再 upsert `c_users`、`c_roles` 和 `c_user_rl`。密码不会写入 migration、代码、日志或本地文件。

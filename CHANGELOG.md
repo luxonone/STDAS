@@ -64,9 +64,14 @@ Current version: `0.1.0`
 - 新增 `seed-dev-admin` gateway 子命令，用环境变量初始化本地/部署数据库管理员，不在 migration 或代码中写入明文密码。
 - 新增 auth request tests，覆盖登录成功、登录失败和有效 token 读取当前用户。
 
+#### Changed
+
+- `seed-dev-admin` 本地初始化从 ignored 本地密码文件改为终端隐藏输入并二次确认；`STDAS_BOOTSTRAP_ADMIN_PASSWORD` 仅保留给 CI 或自动化一次性注入。
+
 #### Security
 
 - 密码只保存 Argon2id PHC hash，access token 只保存 hash；当前仍需在后续切片补齐 refresh/logout、细粒度权限、CustomerScope、完整审计和限流。
+- 移除 bootstrap 管理员密码文件入口，避免本地长期保存明文初始化密码。
 
 ## Legacy Local-Numbered Entries
 
