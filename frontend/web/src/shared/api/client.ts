@@ -40,9 +40,18 @@ export async function requestJson<T>(
     init.body = JSON.stringify(options.body);
   }
 
-  const response = await fetcher(path, init);
+  let response: Response;
+  try {
+    response = await fetcher(path, init);
+  } catch (error) {
+    throw new Error(
+      error instanceof Error
+        ? `Gateway is unavailable: ${error.message}`
+        : "Gateway is unavailable"
+    );
+  }
 
-  const payload: unknown = await response.json();
+  const payload: unknown = await readJsonEnvelope(response);
   if (!isApiEnvelope(payload)) {
     throw new Error("Gateway returned an invalid response envelope");
   }
@@ -56,6 +65,23 @@ export async function requestJson<T>(
   }
 
   return payload.data as T;
+}
+
+async function readJsonEnvelope(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!text.trim()) {
+    throw new Error(
+      `Gateway returned an empty response with HTTP ${response.status}. Make sure stdas-gateway is running.`
+    );
+  }
+
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    throw new Error(
+      `Gateway returned a non-JSON response with HTTP ${response.status}. Make sure stdas-gateway is running.`
+    );
+  }
 }
 
 function isApiEnvelope(payload: unknown): payload is ApiEnvelope<unknown> {

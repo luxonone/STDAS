@@ -104,7 +104,22 @@ cargo run -p stdas-gateway -- routes
 cargo run -p stdas-gateway -- seed-dev-admin
 ```
 
-`seed-dev-admin` 用于创建或更新本地/部署数据库中的初始管理员。它只从环境变量读取密码，不把明文密码写入代码或 migration：
+`seed-dev-admin` 用于创建或更新本地/部署数据库中的初始管理员。密码不会写入代码、migration 或日志。推荐本地开发使用 ignored 本地文件：
+
+```powershell
+New-Item -ItemType Directory -Force backend/services/stdas-gateway/.local
+Set-Content -NoNewline -Path backend/services/stdas-gateway/.local/bootstrap-admin-password -Value "<password>"
+cargo gateway-seed-dev-admin
+```
+
+也可以显式指定密码文件路径：
+
+```powershell
+$env:STDAS_BOOTSTRAP_ADMIN_PASSWORD_FILE = "D:\local\stdas-admin-password"
+cargo gateway-seed-dev-admin
+```
+
+环境变量密码仍可用于临时或 CI 场景，但不建议作为本地开发默认方式：
 
 ```powershell
 $env:STDAS_BOOTSTRAP_ADMIN_PASSWORD = "<password>"

@@ -1,4 +1,4 @@
-use std::{env, sync::Arc};
+use std::{env, fs, io, sync::Arc};
 
 #[cfg(debug_assertions)]
 use std::sync::Mutex;
@@ -20,6 +20,7 @@ pub const TOKEN_TYPE: &str = "Bearer";
 pub const TOKEN_EXPIRES_IN_SECONDS: u32 = 8_u32 * 60_u32 * 60_u32;
 pub const BOOTSTRAP_ADMIN_USERNAME_ENV: &str = "STDAS_BOOTSTRAP_ADMIN_USERNAME";
 pub const BOOTSTRAP_ADMIN_PASSWORD_ENV: &str = "STDAS_BOOTSTRAP_ADMIN_PASSWORD";
+pub const BOOTSTRAP_ADMIN_PASSWORD_FILE_ENV: &str = "STDAS_BOOTSTRAP_ADMIN_PASSWORD_FILE";
 pub const BOOTSTRAP_ADMIN_DISPLAY_NAME_ENV: &str = "STDAS_BOOTSTRAP_ADMIN_DISPLAY_NAME";
 pub const BOOTSTRAP_ADMIN_PERSON_CODE_ENV: &str = "STDAS_BOOTSTRAP_ADMIN_PERSON_CODE";
 pub const BOOTSTRAP_ADMIN_SITE_ID_ENV: &str = "STDAS_BOOTSTRAP_ADMIN_SITE_ID";
@@ -27,6 +28,10 @@ pub const BOOTSTRAP_ADMIN_SITE_ID_ENV: &str = "STDAS_BOOTSTRAP_ADMIN_SITE_ID";
 const DEFAULT_BOOTSTRAP_ADMIN_USERNAME: &str = "admin";
 const DEFAULT_BOOTSTRAP_ADMIN_DISPLAY_NAME: &str = "STDAS Administrator";
 const DEFAULT_BOOTSTRAP_ADMIN_SITE_ID: &str = "STDAS";
+const DEFAULT_BOOTSTRAP_ADMIN_PASSWORD_FILES: &[&str] = &[
+    "backend/services/stdas-gateway/.local/bootstrap-admin-password",
+    ".local/bootstrap-admin-password",
+];
 
 #[derive(Debug, Clone, PartialEq, Eq, sqlx::FromRow)]
 pub(crate) struct StoredUserRecord {
@@ -70,19 +75,30 @@ pub(crate) struct BootstrapAdmin {
 
 impl BootstrapAdmin {
     pub(crate) fn from_env() -> Result<Self, BootstrapAdminError> {
-        Self::from_lookup(|key| env::var(key).ok())
+        Self::from_sources(|key| env::var(key).ok(), read_bootstrap_password_file)
     }
 
-    fn from_lookup(
+    fn from_sources(
         mut lookup: impl FnMut(&str) -> Option<String>,
+        mut read_password_file: impl FnMut(&str) -> Result<Option<String>, BootstrapAdminError>,
     ) -> Result<Self, BootstrapAdminError> {
         let username = lookup(BOOTSTRAP_ADMIN_USERNAME_ENV)
             .map(|value| value.trim().to_owned())
             .filter(|value| !value.is_empty())
             .unwrap_or_else(|| DEFAULT_BOOTSTRAP_ADMIN_USERNAME.to_owned());
-        let password = lookup(BOOTSTRAP_ADMIN_PASSWORD_ENV)
-            .filter(|value| !value.trim().is_empty())
-            .ok_or(BootstrapAdminError::MissingPassword)?;
+        let configured_password_file = lookup(BOOTSTRAP_ADMIN_PASSWORD_FILE_ENV)
+            .map(|value| value.trim().to_owned())
+            .filter(|value| !value.is_empty());
+        let password = match configured_password_file {
+            Some(path) => Some(
+                read_password_file(&path)?
+                    .ok_or_else(|| BootstrapAdminError::PasswordFileMissing { path })?,
+            ),
+            None => read_default_bootstrap_password_file(&mut read_password_file)?.or_else(|| {
+                lookup(BOOTSTRAP_ADMIN_PASSWORD_ENV).filter(|value| !value.trim().is_empty())
+            }),
+        }
+        .ok_or(BootstrapAdminError::MissingPassword)?;
         let display_name = lookup(BOOTSTRAP_ADMIN_DISPLAY_NAME_ENV)
             .map(|value| value.trim().to_owned())
             .filter(|value| !value.is_empty())
@@ -108,8 +124,39 @@ impl BootstrapAdmin {
 
 #[derive(Debug, Error, PartialEq, Eq)]
 pub(crate) enum BootstrapAdminError {
-    #[error("STDAS_BOOTSTRAP_ADMIN_PASSWORD is required to seed the local admin user")]
+    #[error("STDAS_BOOTSTRAP_ADMIN_PASSWORD, STDAS_BOOTSTRAP_ADMIN_PASSWORD_FILE, or backend/services/stdas-gateway/.local/bootstrap-admin-password is required to seed the local admin user")]
     MissingPassword,
+    #[error("configured bootstrap admin password file was not found: {path}")]
+    PasswordFileMissing { path: String },
+    #[error("bootstrap admin password file could not be read: {path}")]
+    PasswordFileRead { path: String },
+}
+
+fn read_default_bootstrap_password_file(
+    read_password_file: &mut impl FnMut(&str) -> Result<Option<String>, BootstrapAdminError>,
+) -> Result<Option<String>, BootstrapAdminError> {
+    for path in DEFAULT_BOOTSTRAP_ADMIN_PASSWORD_FILES {
+        if let Some(password) = read_password_file(path)? {
+            return Ok(Some(password));
+        }
+    }
+
+    Ok(None)
+}
+
+fn read_bootstrap_password_file(path: &str) -> Result<Option<String>, BootstrapAdminError> {
+    match fs::read_to_string(path) {
+        Ok(contents) => Ok(normalize_password_file_contents(&contents)),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
+        Err(_) => Err(BootstrapAdminError::PasswordFileRead {
+            path: path.to_owned(),
+        }),
+    }
+}
+
+fn normalize_password_file_contents(contents: &str) -> Option<String> {
+    let password = contents.trim_end_matches(['\r', '\n']).to_owned();
+    (!password.is_empty()).then_some(password)
 }
 
 #[async_trait]
@@ -634,10 +681,13 @@ mod tests {
 
     #[test]
     fn bootstrap_admin_uses_mes_aligned_defaults_and_requires_password() {
-        let admin = BootstrapAdmin::from_lookup(|key| match key {
-            super::BOOTSTRAP_ADMIN_PASSWORD_ENV => Some("admin@123".to_owned()),
-            _ => None,
-        })
+        let admin = BootstrapAdmin::from_sources(
+            |key| match key {
+                super::BOOTSTRAP_ADMIN_PASSWORD_ENV => Some("admin@123".to_owned()),
+                _ => None,
+            },
+            |_| Ok(None),
+        )
         .expect("password env should create bootstrap admin");
 
         assert_eq!(admin.username, "admin");
@@ -645,20 +695,23 @@ mod tests {
         assert_eq!(admin.person_code, "admin");
         assert_eq!(admin.site_id, "STDAS");
 
-        let missing = BootstrapAdmin::from_lookup(|_| None);
+        let missing = BootstrapAdmin::from_sources(|_| None, |_| Ok(None));
         assert_eq!(missing.err(), Some(BootstrapAdminError::MissingPassword));
     }
 
     #[test]
     fn bootstrap_admin_trims_non_secret_mes_fields() {
-        let admin = BootstrapAdmin::from_lookup(|key| match key {
-            super::BOOTSTRAP_ADMIN_USERNAME_ENV => Some(" te_admin ".to_owned()),
-            super::BOOTSTRAP_ADMIN_PASSWORD_ENV => Some(" admin@123 ".to_owned()),
-            super::BOOTSTRAP_ADMIN_DISPLAY_NAME_ENV => Some(" Test Engineer Admin ".to_owned()),
-            super::BOOTSTRAP_ADMIN_PERSON_CODE_ENV => Some(" UW00133 ".to_owned()),
-            super::BOOTSTRAP_ADMIN_SITE_ID_ENV => Some(" KYBER ".to_owned()),
-            _ => None,
-        })
+        let admin = BootstrapAdmin::from_sources(
+            |key| match key {
+                super::BOOTSTRAP_ADMIN_USERNAME_ENV => Some(" te_admin ".to_owned()),
+                super::BOOTSTRAP_ADMIN_PASSWORD_ENV => Some(" admin@123 ".to_owned()),
+                super::BOOTSTRAP_ADMIN_DISPLAY_NAME_ENV => Some(" Test Engineer Admin ".to_owned()),
+                super::BOOTSTRAP_ADMIN_PERSON_CODE_ENV => Some(" UW00133 ".to_owned()),
+                super::BOOTSTRAP_ADMIN_SITE_ID_ENV => Some(" KYBER ".to_owned()),
+                _ => None,
+            },
+            |_| Ok(None),
+        )
         .expect("explicit env values should create bootstrap admin");
 
         assert_eq!(admin.username, "te_admin");
@@ -666,5 +719,71 @@ mod tests {
         assert_eq!(admin.display_name, "Test Engineer Admin");
         assert_eq!(admin.person_code, "UW00133");
         assert_eq!(admin.site_id, "KYBER");
+    }
+
+    #[test]
+    fn bootstrap_admin_prefers_local_password_file_for_dev_seed() {
+        let admin = BootstrapAdmin::from_sources(
+            |key| match key {
+                super::BOOTSTRAP_ADMIN_PASSWORD_ENV => Some("env-password".to_owned()),
+                _ => None,
+            },
+            |path| {
+                if path == "backend/services/stdas-gateway/.local/bootstrap-admin-password" {
+                    Ok(Some("file-password".to_owned()))
+                } else {
+                    Ok(None)
+                }
+            },
+        )
+        .expect("local password file should create bootstrap admin");
+
+        assert_eq!(admin.username, "admin");
+        assert_eq!(admin.password, "file-password");
+    }
+
+    #[test]
+    fn bootstrap_admin_reads_explicit_password_file_without_trailing_newline() {
+        let admin = BootstrapAdmin::from_sources(
+            |key| match key {
+                super::BOOTSTRAP_ADMIN_PASSWORD_FILE_ENV => {
+                    Some("D:/local/stdas-admin-password".to_owned())
+                }
+                _ => None,
+            },
+            |path| {
+                if path == "D:/local/stdas-admin-password" {
+                    Ok(Some(
+                        super::normalize_password_file_contents("admin@123\r\n")
+                            .expect("password should be present"),
+                    ))
+                } else {
+                    Ok(None)
+                }
+            },
+        )
+        .expect("explicit local password file should create bootstrap admin");
+
+        assert_eq!(admin.password, "admin@123");
+    }
+
+    #[test]
+    fn bootstrap_admin_requires_explicit_password_file_to_exist() {
+        let missing = BootstrapAdmin::from_sources(
+            |key| match key {
+                super::BOOTSTRAP_ADMIN_PASSWORD_FILE_ENV => {
+                    Some("D:/local/missing-password".to_owned())
+                }
+                _ => None,
+            },
+            |_| Ok(None),
+        );
+
+        assert_eq!(
+            missing.err(),
+            Some(BootstrapAdminError::PasswordFileMissing {
+                path: "D:/local/missing-password".to_owned()
+            })
+        );
     }
 }

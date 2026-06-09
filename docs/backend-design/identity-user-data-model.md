@@ -116,6 +116,21 @@ erDiagram
 本地或部署数据库初始化管理员使用：
 
 ```powershell
+New-Item -ItemType Directory -Force backend/services/stdas-gateway/.local
+Set-Content -NoNewline -Path backend/services/stdas-gateway/.local/bootstrap-admin-password -Value "<password>"
+cargo gateway-seed-dev-admin
+```
+
+也可以显式指定 ignored 的本地密码文件：
+
+```powershell
+$env:STDAS_BOOTSTRAP_ADMIN_PASSWORD_FILE = "D:\local\stdas-admin-password"
+cargo gateway-seed-dev-admin
+```
+
+环境变量密码仍保留给临时或 CI 场景：
+
+```powershell
 $env:STDAS_BOOTSTRAP_ADMIN_PASSWORD = "<password>"
 cargo gateway-seed-dev-admin
 ```

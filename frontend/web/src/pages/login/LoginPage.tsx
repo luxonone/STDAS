@@ -22,6 +22,7 @@ export function LoginPage({ onAuthenticated }: LoginPageProps) {
     username: ""
   });
   const [state, setState] = useState<LoginState>({ kind: "idle" });
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -105,15 +106,17 @@ export function LoginPage({ onAuthenticated }: LoginPageProps) {
                 }
                 placeholder="Enter your password"
                 required
-                type="password"
+                type={isPasswordVisible ? "text" : "password"}
                 value={credentials.password}
               />
-              <img
-                alt=""
-                aria-hidden="true"
+              <button
+                aria-label={isPasswordVisible ? "Hide password" : "Show password"}
                 className="login-input__trailing"
-                src="/login-assets/icons/eye.svg"
-              />
+                onClick={() => setIsPasswordVisible((current) => !current)}
+                type="button"
+              >
+                <img alt="" aria-hidden="true" src="/login-assets/icons/eye.svg" />
+              </button>
             </span>
           </label>
 
