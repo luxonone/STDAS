@@ -32,6 +32,7 @@
 - Git/GitHub SOP 调整为主流多人协作口径：新提交采用 Conventional Commits；提交拆分按 atomic change、reviewability、revertability、bisectability 判断，不再使用本地 `C###` / `D###` 编号作为新 commit subject。
 - Git/GitHub SOP 补充“我要提交 git”场景的诊断输出、分支选择、直接推 main 例外、非 GitHub remote、PR/MR 生命周期、合并主分支条件和回退标准动作。
 - Git 提交流程补充 changelog gate：不要求每个 commit 都写 changelog，而是按 PR/变更意图判断是否更新 `CHANGELOG.md` 的对应组件分区。
+- 运行文档补充当前 Windows 本地启动项，明确 PostgreSQL、`stdas-gateway`、Frontend Web 的启动顺序，以及 Redis、NATS、MinIO 在当前切片不需要启动。
 - 文档入口、前后端同步设计、首批功能切片、API 契约和前端设计入口已对齐“身份、会话与授权上下文”最小落地范围。
 - 前端/产品文档状态改为“登录页与身份会话切片部分恢复”。固定 Overview、固定登录后 route 和 Data Explorer 默认入口不再作为当前事实来源。
 

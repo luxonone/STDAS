@@ -12,6 +12,50 @@ runtime/
 └── logs/
 ```
 
+## 当前 Windows 本地启动项
+
+当前 Phase 0 / Data Explorer 切片只需要以下本地启动项：
+
+| 启动项 | 默认地址 | 必需性 | 说明 |
+|--------|----------|--------|------|
+| PostgreSQL | `localhost:5432` | 必需 | 权威业务库，当前保存 `c_users`、`c_roles`、`c_user_rl`、`r_user_session` 和 SQLx migration 状态 |
+| `stdas-gateway` | `127.0.0.1:8080` | 必需 | 当前唯一 backend runtime service，提供 `/api/v1/system/*`、`/api/v1/auth/*`、`/api/v1/data/lots` |
+| Frontend Web | `127.0.0.1:5173` | 必需 | Vite React 工作台 |
+| Redis | `localhost:6379` | 当前不需要 | 等 token revocation、rate limit、Options cache 或缓存 adapter 接入后再进入必需启动项 |
+| NATS JetStream | `localhost:4222` | 当前不需要 | 等跨模块事件、Outbox/Inbox 或 workflow 切片真实接入后再启动 |
+| MinIO / object storage | `localhost:9000` | 当前不需要 | 等文件摄入、原始文件存储或导出切片真实接入后再启动 |
+
+当前 Windows 本地启动顺序：
+
+1. PostgreSQL。
+2. `cargo gateway-seed-dev-admin`，首次或密码需要更新时执行；该命令会运行 SQLx migrations 并写入管理员 Argon2id hash。
+3. `cargo gateway`。
+4. `pnpm dev`。
+
+本地 PostgreSQL 使用 Scoop 安装的二进制：
+
+```powershell
+pg_ctl start `
+  -D C:\Users\UW00133\scoop\persist\postgresql\data `
+  -l D:\Code\Project\temp\STDAS\tmp\postgresql.log
+pg_isready -h localhost -p 5432
+```
+
+默认 Gateway 数据库连接串：
+
+```text
+postgres://stdas:stdas@localhost:5432/stdas
+```
+
+首次创建本机默认 role/database：
+
+```powershell
+psql -h localhost -p 5432 -U postgres -d postgres -c "CREATE ROLE stdas LOGIN PASSWORD 'stdas';"
+createdb -h localhost -p 5432 -U postgres -O stdas stdas
+```
+
+管理员初始化默认使用终端隐藏输入；CI 或一次性自动化可以临时设置 `STDAS_BOOTSTRAP_ADMIN_PASSWORD`。明文密码不得写入 migration、代码、日志或本地提交文件。
+
 未来服务化后，STDAS 采用原生分布式进程部署。每个服务是独立 Rust 二进制，可在 Windows 或 Linux 上直接运行。单节点部署使用 `localhost`，多节点部署通过配置切换为实际 IP。
 
 ## 未来运行进程

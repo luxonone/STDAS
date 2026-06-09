@@ -4,7 +4,9 @@
 
 复验：2026-05-18，当前 Windows 本机通过 Scoop 安装并验证 NATS Server、NATS CLI、MinIO、MinIO Client、PostgreSQL 和 Redis；Rust、Node.js、pnpm、Git 已可用。
 
-本记录基于当前本机环境和当前仓库状态执行。当前仓库仍处于 V1 文档基线阶段，尚未创建 STDAS Rust workspace 或 React app，因此本次验证只确认本机工具链可用性，并记录项目级命令为何暂不可跑。
+复验：2026-06-09，当前仓库已进入登录 + Data Explorer / Lot List 评审切片，项目级 Rust、前端、PostgreSQL、Gateway 和浏览器登录链路已可运行；详见本文“2026-06-09 复验记录”。
+
+本记录基于当前本机环境和当前仓库状态执行。2026-05-18 的原始记录只确认本机工具链可用性；2026-06-09 起，项目级命令已经可跑，当前运行切片需要 PostgreSQL、`stdas-gateway` 和 Frontend Web 三类本地启动项。
 
 ## 结论
 
@@ -19,10 +21,38 @@
 | Redis binary | 通过 | `redis-server`、`redis-cli` 可用 |
 | Frontend package manager | 通过 | STDAS 前端统一使用 `pnpm` |
 | Docker | 不使用 | Windows 本地开发不安装、不使用 Docker |
-| STDAS backend commands | 暂不可执行 | 根目录尚无 `Cargo.toml` |
-| STDAS frontend commands | 暂不可执行 | 根目录尚无 `package.json` |
+| STDAS backend commands | 通过 | 当前根目录已有 Rust workspace，`cargo gateway`、`cargo test -p stdas-gateway` 可运行 |
+| STDAS frontend commands | 通过 | 当前根目录已有 pnpm workspace，`pnpm dev`、`pnpm test` 可运行 |
 
-当前状态可以进入 Phase 0 代码骨架创建；不能声称项目级 build/test 已经通过。Phase 0 完成 Rust workspace 和 React app 初始化后，必须重新执行本 gate。
+当前状态可以运行 Phase 0 / Data Explorer 评审切片。项目级 build/test 的最新验证以本文件 2026-06-09 复验记录和 PR 验证记录为准。
+
+## 2026-06-09 复验记录
+
+当前本机启动项：
+
+| 启动项 | 状态 | 验证 |
+|--------|------|------|
+| PostgreSQL | 通过 | `pg_ctl start -D C:\Users\UW00133\scoop\persist\postgresql\data -l D:\Code\Project\temp\STDAS\tmp\postgresql.log`；`pg_isready -h localhost -p 5432` 返回 accepting connections |
+| STDAS database | 通过 | `stdas` role 和 `stdas` database 已存在；Gateway 默认连接 `postgres://stdas:stdas@localhost:5432/stdas` |
+| Bootstrap admin | 通过 | 使用一次性 `STDAS_BOOTSTRAP_ADMIN_PASSWORD` 执行 `cargo gateway-seed-dev-admin`；输出 `stdas-gateway bootstrap admin is ready` |
+| `stdas-gateway` | 通过 | 后台启动 `cargo gateway`，`127.0.0.1:8080` 监听 |
+| Frontend Web | 通过 | 当前 `127.0.0.1:5173` 由本仓库 Vite 进程监听 |
+| Browser login | 通过 | Playwright 打开 `http://127.0.0.1:5173`，使用本机已 seed 的 `admin` 账号登录后进入 Data Explorer / Lot List |
+
+当前本地启动顺序：
+
+```powershell
+pg_ctl start `
+  -D C:\Users\UW00133\scoop\persist\postgresql\data `
+  -l D:\Code\Project\temp\STDAS\tmp\postgresql.log
+pg_isready -h localhost -p 5432
+
+cargo gateway-seed-dev-admin
+cargo gateway
+pnpm dev
+```
+
+当前切片不需要启动 Redis、NATS JetStream 或 MinIO；这些工具仍保留为后续缓存、事件、对象存储、摄入和导出切片的可用基础设施。
 
 ## 已执行命令
 
@@ -76,17 +106,15 @@
 
 ## 缺口
 
-- 需要创建 STDAS Rust workspace 后重新运行：
-  - `cargo fmt`
-  - `cargo check`
-  - `cargo clippy`
-  - `cargo test`
-- 需要创建 React + TypeScript app 后重新运行：
-  - `pnpm install`
-  - lint
-  - typecheck
-  - test
-  - build
+- 后续每个代码切片仍需重新运行：
+  - `cargo fmt --check`
+  - `cargo check -p stdas-gateway --release`
+  - `cargo clippy -p stdas-gateway --all-targets -- -D warnings`
+  - `cargo test -p stdas-gateway`
+  - `pnpm lint`
+  - `pnpm typecheck`
+  - `pnpm test`
+  - `pnpm build`
 - NATS / MinIO 可执行文件已具备；后续还需在 Phase 0 代码骨架创建后验证：
   - NATS JetStream 启动和 publish/subscribe demo。
   - MinIO server 启动、bucket 创建和对象读写。

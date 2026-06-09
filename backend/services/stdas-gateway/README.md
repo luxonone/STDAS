@@ -104,6 +104,38 @@ cargo run -p stdas-gateway -- routes
 cargo run -p stdas-gateway -- seed-dev-admin
 ```
 
+## 本地启动依赖
+
+`stdas-gateway` 当前依赖本机 PostgreSQL。默认配置来自环境变量，未设置时使用：
+
+| 配置 | 默认值 |
+|------|--------|
+| `STDAS_GATEWAY_ADDR` | `127.0.0.1:8080` |
+| `STDAS_DATABASE_URL` | `postgres://stdas:stdas@localhost:5432/stdas` |
+
+Windows + Scoop 本地启动 PostgreSQL：
+
+```powershell
+New-Item -ItemType Directory -Force tmp | Out-Null
+pg_ctl start `
+  -D C:\Users\UW00133\scoop\persist\postgresql\data `
+  -l D:\Code\Project\temp\STDAS\tmp\postgresql.log
+pg_isready -h localhost -p 5432
+```
+
+若 `stdas` role 或 database 尚不存在，先用 PostgreSQL 管理账号创建：
+
+```powershell
+psql -h localhost -p 5432 -U postgres -d postgres -c "CREATE ROLE stdas LOGIN PASSWORD 'stdas';"
+createdb -h localhost -p 5432 -U postgres -O stdas stdas
+```
+
+启动 Gateway 前必须至少执行一次管理员初始化。该命令会先执行 SQLx migrations，再 upsert `c_users`、`c_roles` 和 `c_user_rl`：
+
+```powershell
+cargo gateway-seed-dev-admin
+```
+
 `seed-dev-admin` 用于创建或更新本地/部署数据库中的初始管理员。默认本地开发流程是交互式输入密码；服务端只把 Argon2id hash 写入 `c_users.passwd`，不会把明文密码写入代码、migration、日志或本地文件：
 
 ```powershell
